@@ -264,22 +264,26 @@ When generating, you MUST return a JSON block like this:
       "starterCode": "// language-appropriate function skeleton",
       "hints": ["hint 1", "hint 2"],
       "testCases": [
-        { "input": "string", "expectedOutput": "string", "isHidden": false },
-        { "input": "string", "expectedOutput": "string", "isHidden": false },
-        { "input": "string", "expectedOutput": "string", "isHidden": true },
-        { "input": "string", "expectedOutput": "string", "isHidden": true }
+        { "input": "5", "expectedOutput": "120", "isHidden": false },
+        { "input": "0", "expectedOutput": "1", "isHidden": false },
+        { "input": "10", "expectedOutput": "3628800", "isHidden": true },
+        { "input": "-1", "expectedOutput": "error", "isHidden": true }
       ]
     }
   ]
 }
 \`\`\`
 
-## Rules
+## CRITICAL Rules for JSON
+- test case "input" and "expectedOutput" must be SIMPLE STRINGS — plain values like "5", "[1,2,3]", "hello"
+- NEVER put JavaScript code, arrow functions, or objects in test case input/output fields
+- All strings inside the JSON must be properly escaped (no unescaped quotes or newlines)
+- The JSON must be valid and parseable by JSON.parse()
 - Include 2 visible + 2-3 hidden test cases per problem
-- starter code must match the language (Python def, JS function, etc.)
-- Edge cases in hidden test cases (empty input, large values, negatives)
+- Starter code must match the language (Python def, JS function, TypeScript function, etc.)
+- Edge cases in hidden test cases: empty input, large values, negatives
 - After generating, ask "Want me to make it harder/easier or add another problem?"
-- If the user asks to modify, update the JSON and return the full updated version
+- If the user asks to modify, return the full updated JSON block again
 - ALWAYS include the JSON block when you have an assessment to show
 - For simple conversation (greetings, questions), reply normally without JSON
 
@@ -294,28 +298,70 @@ ${currentAssessment ? JSON.stringify(currentAssessment, null, 2) : "None yet"}
 
   const fullPrompt = `${systemPrompt}\n\n## Conversation\n${conversationText}\n\nAssistant:`;
 
-  const result = await generateContent(client, fullPrompt, 2048);
+  const result = await generateContent(client, fullPrompt, 3072);
   const text = result.text.trim();
 
-  // Extract JSON assessment if present
-  const jsonMatch = text.match(/```json\s*([\s\S]*?)```/);
+  // ── Extract JSON assessment (multi-pattern, with sanitization) ────────────
   let assessment = null;
   let ready = false;
 
-  if (jsonMatch) {
+  // Try multiple fence patterns Gemini might use
+  const fencePatterns = [
+    /```json\s*([\s\S]*?)```/,   // standard ```json ... ```
+    /```\s*(\{[\s\S]*?\})\s*```/, // ``` { ... } ``` (no label)
+    /(\{[\s\S]*"problems"[\s\S]*\})/, // bare JSON object with "problems" key
+  ];
+
+  for (const pattern of fencePatterns) {
+    const match = text.match(pattern);
+    if (!match) continue;
+
+    let jsonStr = match[1].trim();
+
+    // Sanitize: remove trailing commas before } or ]
+    jsonStr = jsonStr.replace(/,\s*([}\]])/g, "$1");
+
+    // Sanitize: escape lone backslashes that aren't valid escapes
+    // (keeps \\n, \\t, \\", etc. but fixes stray backslashes)
+    jsonStr = jsonStr.replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
+
     try {
-      assessment = JSON.parse(jsonMatch[1].trim());
-      ready = true;
+      const parsed = JSON.parse(jsonStr);
+      // Validate it looks like a real assessment
+      if (parsed && parsed.title && Array.isArray(parsed.problems)) {
+        assessment = parsed;
+        ready = true;
+        break;
+      }
     } catch (e) {
-      console.warn("Failed to parse AI assessment JSON:", e.message);
+      console.warn(`Pattern ${pattern} failed: ${e.message}`);
+      // Try one more time with a more aggressive sanitization
+      try {
+        // Strip control characters that break JSON parsing
+        const cleaned = jsonStr
+          .replace(/[\x00-\x1F\x7F]/g, (c) =>
+            c === "\n" ? "\\n" : c === "\t" ? "\\t" : c === "\r" ? "" : ""
+          );
+        const parsed = JSON.parse(cleaned);
+        if (parsed && parsed.title && Array.isArray(parsed.problems)) {
+          assessment = parsed;
+          ready = true;
+          break;
+        }
+      } catch (_) {
+        // continue to next pattern
+      }
     }
   }
 
-  // Clean the reply — remove the raw JSON block from conversational text
-  const reply = text.replace(/```json[\s\S]*?```/g, "").trim();
+  // Clean the reply — strip JSON fence blocks from conversational text
+  const reply = text
+    .replace(/```json[\s\S]*?```/g, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .trim();
 
   return {
-    reply: reply || "Here's your assessment! Review it and let me know if you'd like any changes.",
+    reply: reply || "Here's your assessment! Review it on the right and let me know if you'd like any changes.",
     assessment,
     ready,
   };
