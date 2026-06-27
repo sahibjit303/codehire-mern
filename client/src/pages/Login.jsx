@@ -81,11 +81,8 @@ export default function Login() {
           Don't have an account? <Link to="/register">Create one →</Link>
         </div>
 
-        <div className="demo-hint">
-          <span className="demo-hint-label">// demo account</span><br />
-          email: demo@CodeHire.live<br />
-          password: demo1234
-        </div>
+
+
       </div>
     </div>
   );
