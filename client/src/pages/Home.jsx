@@ -4,7 +4,7 @@ import FadeUp from "../components/FadeUp.jsx";
 import usePageTitle from "../hooks/usePageTitle.js";
 import { TABS, WHY, STEPS, TESTIMONIALS, HERO_CANDIDATES, BETA_CARDS } from "../data/homeData.js";
 
-/* ── Tab visual components ─────────────────────────── */
+/* ── Tab visual components ───────────────────────── */
 
 function MiniCandRow({ name, sub, score, bg, color, pct }) {
   return (
@@ -26,9 +26,9 @@ function ScreenVisual() {
   return (
     <div className="tab-visual">
       <div className="tab-visual-label">Live Candidate Ranking</div>
-      <MiniCandRow name="Arjun K." sub="Go · Kubernetes · Postgres" score={92} pct={92} bg="#E6EEF7" color="#2563EB" />
-      <MiniCandRow name="Sofia R." sub="React · Node · TypeScript" score={87} pct={87} bg="#F1E6D2" color="#D97706" />
-      <MiniCandRow name="Marcus L." sub="Rust · Distributed Systems" score={81} pct={81} bg="#ECFDF5" color="#059669" />
+      <MiniCandRow name="Arjun K." sub="Go · Kubernetes · Postgres" score={94} pct={94} bg="#E0E7FF" color="#4F46E5" />
+      <MiniCandRow name="Sofia R." sub="React · Node · TypeScript" score={88} pct={88} bg="#FEF3C7" color="#D97706" />
+      <MiniCandRow name="Marcus L." sub="Rust · Distributed Systems" score={82} pct={82} bg="#ECFDF5" color="#059669" />
     </div>
   );
 }
@@ -72,7 +72,7 @@ function InterviewVisual() {
       ))}
       <div className="interview-score-card">
         <span className="interview-score-label">Candidate score</span>
-        <span className="interview-score-value">88 / 100</span>
+        <span className="interview-score-value">91 / 100</span>
       </div>
     </div>
   );
@@ -80,9 +80,9 @@ function InterviewVisual() {
 
 function WorkflowVisual() {
   const stages = [
-    ["Screen", "248 applicants", "#ECFDF5", "#059669", "✓"],
-    ["Assess", "42 candidates", "#E6EEF7", "#2563EB", "→"],
-    ["Interview", "8 finalists", "#F1E6D2", "#D97706", "◎"],
+    ["Screen", "248 applicants", "#E0E7FF", "#4F46E5", "✓"],
+    ["Assess", "42 candidates", "#ECFDF5", "#059669", "→"],
+    ["Interview", "8 finalists", "#FEF3C7", "#D97706", "◎"],
   ];
   return (
     <div className="tab-visual">
@@ -132,8 +132,15 @@ const TAB_VISUALS = {
   integrations: IntegrationsVisual,
 };
 
-/* ── Hero Card ─────────────────────────────────────── */
+const BENTO_ICONS = {
+  screen: "🎯",
+  assess: "🔬",
+  interview: "💬",
+  workflow: "⚡",
+  integrations: "🔗",
+};
 
+/* ── Hero Card ──────────────────────────────────── */
 function HeroCard() {
   return (
     <div className="hero-card">
@@ -152,26 +159,19 @@ function HeroCard() {
         </div>
       ))}
       <div className="hero-card-footer">
-        <span className="mono">avg.score</span>
-        <span className="mono hero-card-avg">86.7</span>
+        <span className="mono">avg. score</span>
+        <span className="mono hero-card-avg">88.0</span>
       </div>
     </div>
   );
 }
 
-/* ── Home page ─────────────────────────────────────────── */
-
+/* ── Home Page ──────────────────────────────────── */
 export default function Home() {
-  usePageTitle(null); // Use default title for homepage
+  usePageTitle(null);
   const [activeTab, setActiveTab] = useState("screen");
-  const [tabKey, setTabKey] = useState(0);
-  const current = TABS.find((t) => t.key === activeTab);
   const Visual = TAB_VISUALS[activeTab];
-
-  const switchTab = (key) => {
-    setActiveTab(key);
-    setTabKey((k) => k + 1);
-  };
+  const current = TABS.find((t) => t.key === activeTab);
 
   return (
     <>
@@ -182,7 +182,11 @@ export default function Home() {
             <FadeUp>
               <div className="eyebrow">Now in private beta — limited access</div>
               <h1>Hire Engineers Who <span className="italic">Actually Build.</span><br />Not Just Prompt AI.</h1>
-              <p className="hero-sub">Technical hiring is broken. AI tools let anyone look qualified on paper. CodeHire gives you the tools to find engineers who can genuinely think, architect, and deliver — with proof.</p>
+              <p className="hero-sub">
+                Technical hiring is broken. AI tools let anyone look qualified on paper.
+                CodeHire gives you the tools to find engineers who can genuinely think,
+                architect, and deliver — with proof.
+              </p>
               <div className="hero-ctas">
                 <Link to="/apply" className="btn btn-primary">
                   Request Early Access
@@ -191,6 +195,21 @@ export default function Home() {
                 <a href="#how" className="btn btn-outline">See how it works</a>
               </div>
               <p className="hero-note mono">// Onboarding 50 engineering teams — spots limited</p>
+
+              <div className="hero-stats">
+                <div>
+                  <div className="hero-stat-val">70%</div>
+                  <div className="hero-stat-label">Faster screening</div>
+                </div>
+                <div>
+                  <div className="hero-stat-val">3×</div>
+                  <div className="hero-stat-label">Better signal</div>
+                </div>
+                <div>
+                  <div className="hero-stat-val">24h</div>
+                  <div className="hero-stat-label">To first assessment</div>
+                </div>
+              </div>
             </FadeUp>
             <FadeUp delay={0.15}>
               <HeroCard />
@@ -199,7 +218,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── DIVIDER ── */}
+      {/* ── TRUST BAR ── */}
       <div className="trust-bar">
         <div className="container">
           <p className="mono trust-text">
@@ -208,7 +227,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── FEATURES ── */}
+      {/* ── FEATURES BENTO ── */}
       <section className="section-alt" id="features">
         <div className="container">
           <FadeUp>
@@ -219,25 +238,44 @@ export default function Home() {
             </div>
           </FadeUp>
 
-          <div className="tabs">
-            {TABS.map((t) => (
-              <button key={t.key} className={`tab${activeTab === t.key ? " active" : ""}`} onClick={() => switchTab(t.key)}>
-                {t.label}
-              </button>
-            ))}
+          <div className="feature-bento">
+            {TABS.map((t, i) => {
+              const V = TAB_VISUALS[t.key];
+              const isWide = i === 0 || i === 3;
+              return (
+                <FadeUp key={t.key} delay={i * 0.06}>
+                  <div
+                    className={`feature-bento-card${activeTab === t.key ? " active" : ""}${isWide ? " feature-bento-wide" : ""}`}
+                    onClick={() => setActiveTab(t.key)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && setActiveTab(t.key)}
+                  >
+                    <div className="feature-bento-num">{t.num}</div>
+                    <span className="feature-bento-icon">{BENTO_ICONS[t.key]}</span>
+                    <h3>{t.heading}</h3>
+                    <p>{t.body}</p>
+                    {activeTab === t.key && (
+                      <div className="feature-bento-visual">
+                        <V />
+                      </div>
+                    )}
+                  </div>
+                </FadeUp>
+              );
+            })}
           </div>
 
-          <div key={tabKey} className="tab-panel active tab-panel-anim">
-            <div>
-              <div className="eyebrow">{current.num} — {current.label}</div>
-              <h3>{current.heading}</h3>
-              <p>{current.body}</p>
-              <ul className="point-list">
-                {current.points.map((p) => <li key={p}>{p}</li>)}
-              </ul>
-            </div>
-            <Visual />
-          </div>
+          {/* Feature detail for active tab — point list */}
+          {current && (
+            <FadeUp>
+              <div style={{ marginTop: 32, padding: "24px 28px", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius)" }}>
+                <ul className="point-list" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "0 24px" }}>
+                  {current.points.map((p) => <li key={p}>{p}</li>)}
+                </ul>
+              </div>
+            </FadeUp>
+          )}
         </div>
       </section>
 
@@ -252,7 +290,7 @@ export default function Home() {
           </FadeUp>
           <div className="why-grid">
             {WHY.map((w, i) => (
-              <FadeUp key={w.num} delay={i * 0.1}>
+              <FadeUp key={w.num} delay={i * 0.08}>
                 <div className="why-card">
                   <div className="why-num">{w.num}</div>
                   <h3>{w.title}</h3>
@@ -276,7 +314,7 @@ export default function Home() {
           </FadeUp>
           <div className="steps">
             {STEPS.map((s, i) => (
-              <FadeUp key={s.num} delay={i * 0.15}>
+              <FadeUp key={s.num} delay={i * 0.12}>
                 <div className="step">
                   <div className="step-num">{s.num}</div>
                   <h3>{s.title}</h3>
@@ -299,12 +337,12 @@ export default function Home() {
           </FadeUp>
           <div className="testimonial-grid">
             {TESTIMONIALS.map((t, i) => (
-              <FadeUp key={t.name} delay={i * 0.12}>
+              <FadeUp key={t.name} delay={i * 0.10}>
                 <div className="testimonial-card">
                   <div className="testimonial-quote">❝</div>
                   <p className="testimonial-body">{t.quote}</p>
                   <div className="testimonial-author">
-                    <div className="cand-avatar" style={{ background: t.bg, color: t.color, width: 40, height: 40, fontSize: 14 }}>{t.initials}</div>
+                    <div className="cand-avatar" style={{ background: t.bg, color: t.color, width: 38, height: 38, fontSize: 13 }}>{t.initials}</div>
                     <div>
                       <div className="testimonial-name">{t.name}</div>
                       <div className="testimonial-role">{t.role}</div>
@@ -332,7 +370,7 @@ export default function Home() {
               <div className="beta-grid">
                 {BETA_CARDS.map(({ icon, title, body }) => (
                   <div key={title} className="beta-card">
-                    <div className="beta-card-icon">{icon}</div>
+                    <span className="beta-card-icon">{icon}</span>
                     <h4>{title}</h4>
                     <p>{body}</p>
                   </div>
@@ -355,7 +393,7 @@ export default function Home() {
                 Request Early Access
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
-              <Link to="/login" className="btn btn-outline">Log In</Link>
+              <Link to="/login" className="btn btn-outline">Sign In</Link>
             </div>
             <p className="mono final-cta-note">// Onboarding in cohorts · Spots are limited</p>
           </FadeUp>
