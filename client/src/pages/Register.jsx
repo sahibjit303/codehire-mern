@@ -57,9 +57,9 @@ export default function Register() {
           <div className="brand-mark" style={{ marginBottom: 0 }}>HC</div>
           <span>CodeHire</span>
         </div>
-        <div className="eyebrow" style={{ marginTop: 24 }}>Get started free</div>
-        <h2>Create your account</h2>
-        <p className="sub">Set up your CodeHire workspace in seconds</p>
+        <div className="eyebrow" style={{ marginTop: 24 }}>Get started</div>
+        <h2>Create your workspace</h2>
+        <p className="sub">Set up CodeHire for your team in under a minute</p>
 
         {error && (
           <div className="error-box error-box-icon">
@@ -95,14 +95,14 @@ export default function Register() {
             <PasswordStrength password={form.password} />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading} style={{ marginTop: 4 }}>
-            {loading ? <><span className="btn-spinner" /> Creating account…</> : "Create Account →"}
+            {loading ? <><span className="btn-spinner" /> Setting up workspace…</> : "Create Workspace →"}
           </button>
         </form>
 
         <div className="auth-divider"><span>or</span></div>
 
         <div className="auth-foot">
-          Already have an account? <Link to="/login">Log in →</Link>
+          Already have an account? <Link to="/login">Sign in →</Link>
         </div>
       </div>
     </div>

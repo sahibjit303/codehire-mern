@@ -180,17 +180,17 @@ export default function Home() {
         <div className="container">
           <div className="hero-grid">
             <FadeUp>
-              <div className="eyebrow">Now in private beta</div>
-              <h1>Stop Hiring <span className="italic">Vibecoders.</span><br />Start Hiring Engineers.</h1>
-              <p className="hero-sub">Technical hiring broke in the AI era. CodeHire helps startups identify engineers who can actually think and build — not just prompt GPT.</p>
+              <div className="eyebrow">Now in private beta — limited access</div>
+              <h1>Hire Engineers Who <span className="italic">Actually Build.</span><br />Not Just Prompt AI.</h1>
+              <p className="hero-sub">Technical hiring is broken. AI tools let anyone look qualified on paper. CodeHire gives you the tools to find engineers who can genuinely think, architect, and deliver — with proof.</p>
               <div className="hero-ctas">
                 <Link to="/apply" className="btn btn-primary">
-                  Apply For Access
+                  Request Early Access
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </Link>
-                <a href="#how" className="btn btn-outline">How it works</a>
+                <a href="#how" className="btn btn-outline">See how it works</a>
               </div>
-              <p className="hero-note mono">// Limited to 50 YC startups — apply now</p>
+              <p className="hero-note mono">// Onboarding 50 engineering teams — spots limited</p>
             </FadeUp>
             <FadeUp delay={0.15}>
               <HeroCard />
@@ -203,7 +203,7 @@ export default function Home() {
       <div className="trust-bar">
         <div className="container">
           <p className="mono trust-text">
-            TRUSTED BY YC-BACKED TEAMS · W24 · S24 · W25 · S25
+            TRUSTED BY ENGINEERING TEAMS AT YC-BACKED STARTUPS · W23 · S23 · W24 · S24 · W25 · S25
           </p>
         </div>
       </div>
@@ -214,8 +214,8 @@ export default function Home() {
           <FadeUp>
             <div className="section-head">
               <div className="eyebrow">Platform</div>
-              <h2>Everything You Need to Hire Engineers Who Can Actually Build</h2>
-              <p>One platform. From job posting to the final hire — no stitching tools together.</p>
+              <h2>Everything your team needs — from first application to final hire</h2>
+              <p>One integrated platform. Screen smarter, assess authentically, interview consistently, and close faster — without stitching five tools together.</p>
             </div>
           </FadeUp>
 
@@ -247,7 +247,7 @@ export default function Home() {
           <FadeUp>
             <div className="section-head">
               <div className="eyebrow">Why CodeHire</div>
-              <h2>Why Modern Teams Hire With CodeHire AI</h2>
+              <h2>The four things that make the difference</h2>
             </div>
           </FadeUp>
           <div className="why-grid">
@@ -270,8 +270,8 @@ export default function Home() {
           <FadeUp>
             <div className="section-head">
               <div className="eyebrow">How It Works</div>
-              <h2>From Assessment to Hire in Three Steps</h2>
-              <p>Simple process. Powerful signal. Fast decisions.</p>
+              <h2>From open role to confident hire — in three steps</h2>
+              <p>A simple, repeatable process. Strong signal at every stage. Faster decisions you can defend.</p>
             </div>
           </FadeUp>
           <div className="steps">
@@ -293,8 +293,8 @@ export default function Home() {
         <div className="container">
           <FadeUp>
             <div className="section-head">
-              <div className="eyebrow">Founders Say</div>
-              <h2>Trusted by YC Engineers Who Care About Quality</h2>
+              <div className="eyebrow">What Teams Are Saying</div>
+              <h2>Built for teams that take engineering quality seriously</h2>
             </div>
           </FadeUp>
           <div className="testimonial-grid">
@@ -323,10 +323,10 @@ export default function Home() {
           <FadeUp>
             <div className="beta-box">
               <div className="eyebrow">Private Beta</div>
-              <h2>Built for YC Startups.<br />Not for everyone. Yet.</h2>
-              <p>This isn't "Buy our SaaS." This is a private beta for selected YC startups who care about real engineering quality.</p>
+              <h2>Built for teams that hire<br />on merit, not instinct.</h2>
+              <p>This is a private beta — not a self-serve SaaS product. We onboard selected engineering teams in cohorts of 10, with hands-on support at every step.</p>
               <div className="beta-ctas">
-                <Link to="/apply" className="btn btn-primary">Apply for Early Access</Link>
+                <Link to="/apply" className="btn btn-primary">Request Early Access</Link>
                 <a href="#how" className="btn btn-outline">See How It Works</a>
               </div>
               <div className="beta-grid">
@@ -347,17 +347,17 @@ export default function Home() {
       <section className="final-cta section-alt">
         <div className="container">
           <FadeUp>
-            <div className="eyebrow">Limited Access</div>
-            <h2>Join The First 50<br /><span className="final-cta-highlight">YC Startups</span></h2>
-            <p>Empowering YC startups to hire exceptional engineering talent in the AI era.</p>
+            <div className="eyebrow">Limited Availability</div>
+            <h2>Stop guessing.<br /><span className="final-cta-highlight">Start knowing.</span></h2>
+            <p>Give your hiring team the signal it needs to make confident decisions — fast. Built for engineering-led companies who refuse to compromise on talent quality.</p>
             <div className="final-ctas">
               <Link to="/apply" className="btn btn-primary">
-                Apply for Access
+                Request Early Access
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
               <Link to="/login" className="btn btn-outline">Log In</Link>
             </div>
-            <p className="mono final-cta-note">// Limited early access for YC-backed teams</p>
+            <p className="mono final-cta-note">// Onboarding in cohorts · Spots are limited</p>
           </FadeUp>
         </div>
       </section>

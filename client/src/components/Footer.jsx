@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 
 const SOCIAL = [
-  { label: "𝕏", href: "#", ariaLabel: "Twitter / X" },
-  { label: "in", href: "#", ariaLabel: "LinkedIn" },
-  { label: "gh", href: "#", ariaLabel: "GitHub" },
+  { label: "𝕏", href: "https://x.com/codehire", ariaLabel: "Follow CodeHire on X (Twitter)" },
+  { label: "in", href: "https://linkedin.com/company/codehire", ariaLabel: "CodeHire on LinkedIn" },
+  { label: "gh", href: "https://github.com/codehire", ariaLabel: "CodeHire on GitHub" },
 ];
 
 export default function Footer() {
@@ -16,10 +16,10 @@ export default function Footer() {
               <div className="brand-mark">HC</div>
               CodeHire
             </div>
-            <p>AI-powered technical hiring built for the modern engineering era. Stop hiring vibecoders.</p>
+            <p>AI-powered technical hiring for engineering teams that refuse to compromise on quality. Find engineers who build — not just prompt.</p>
             <div className="footer-social">
               {SOCIAL.map((s) => (
-                <a key={s.label} href={s.href} className="social-icon" aria-label={s.ariaLabel}>
+                <a key={s.label} href={s.href} className="social-icon" aria-label={s.ariaLabel} target="_blank" rel="noopener noreferrer">
                   {s.label}
                 </a>
               ))}
@@ -27,33 +27,34 @@ export default function Footer() {
           </div>
 
           <div className="footer-col">
-            <h4>Products</h4>
-            <Link to="/#features">Screen</Link>
-            <Link to="/#features">Assess</Link>
-            <Link to="/#features">Interview</Link>
-            <Link to="/#features">Workflow</Link>
+            <h4>Platform</h4>
+            <Link to="/#features">Screen Candidates</Link>
+            <Link to="/#features">Assess Technically</Link>
+            <Link to="/#features">Interview Consistently</Link>
+            <Link to="/#features">Automate Pipeline</Link>
             <Link to="/#features">Integrations</Link>
           </div>
 
           <div className="footer-col">
-            <h4>Solutions</h4>
-            <Link to="/apply">For Startups</Link>
-            <Link to="/apply">For Enterprises</Link>
+            <h4>Use Cases</h4>
+            <Link to="/apply">Startups & Scale-ups</Link>
+            <Link to="/apply">Engineering Leads</Link>
             <Link to="/demo">Anti-AI Detection</Link>
-            <Link to="/demo">Smarter Hiring</Link>
+            <Link to="/demo">Skills-Based Hiring</Link>
           </div>
 
           <div className="footer-col">
             <h4>Company</h4>
-            <Link to="/apply">Apply For Access</Link>
-            <Link to="/demo">Demo</Link>
-            <Link to="/login">Log In</Link>
+            <Link to="/apply">Request Access</Link>
+            <Link to="/demo">Live Demo</Link>
+            <Link to="/login">Sign In</Link>
+            <Link to="/register">Create Account</Link>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <span>© 2026 CodeHire. All rights reserved.</span>
-          <span className="mono footer-tagline">// Built for the AI hiring era</span>
+          <span>© {new Date().getFullYear()} CodeHire. All rights reserved.</span>
+          <span className="mono footer-tagline">// Hire engineers. Not vibecoders.</span>
         </div>
       </div>
     </footer>

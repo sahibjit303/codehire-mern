@@ -39,8 +39,8 @@ export default function Login() {
           <span>CodeHire</span>
         </div>
         <div className="eyebrow" style={{ marginTop: 24 }}>Welcome back</div>
-        <h2>Log in to CodeHire</h2>
-        <p className="sub">Access your hiring dashboard</p>
+        <h2>Sign in to CodeHire</h2>
+        <p className="sub">Access your hiring dashboard and candidate pipeline</p>
 
         {error && (
           <div className="error-box error-box-icon">
@@ -79,6 +79,9 @@ export default function Login() {
 
         <div className="auth-foot">
           Don't have an account? <Link to="/register">Create one →</Link>
+        </div>
+        <div className="auth-foot" style={{ marginTop: 8 }}>
+          <Link to="/apply" style={{ fontSize: 13, color: "var(--muted)" }}>Need access? Apply for early access →</Link>
         </div>
 
 

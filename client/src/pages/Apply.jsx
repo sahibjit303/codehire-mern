@@ -31,18 +31,18 @@ export default function Apply() {
     return (
       <div className="auth-wrap">
         <div className="auth-card apply-success">
-          <div className="apply-success-icon">🎉</div>
+          <div className="apply-success-icon">✅</div>
           <div className="eyebrow">Application received</div>
-          <h2>You're on the list!</h2>
+          <h2>You're in the queue.</h2>
           <p className="apply-success-text">
-            We'll review your application and reach out within a few days. We're onboarding YC startups in batches of 10.
+            We review every application personally. If your team is a strong fit, you'll hear from us within 48 hours to schedule a 20-minute founder call.
           </p>
           <div className="apply-next-steps">
             // what happens next<br />
-            01. We review your application<br />
-            02. Founder call (30 min)<br />
-            03. Custom onboarding for your stack<br />
-            04. First assessment live in 24h
+            01. We review your application (1–2 days)<br />
+            02. Founder call to understand your hiring workflow<br />
+            03. Custom assessment setup for your stack<br />
+            04. First live assessment running within 24 hours
           </div>
         </div>
       </div>
@@ -53,12 +53,12 @@ export default function Apply() {
     <div className="auth-wrap apply-wrap">
       <div className="apply-container">
         <div className="apply-header">
-          <div className="eyebrow">Private Beta</div>
+          <div className="eyebrow">Private Beta — Invite Only</div>
           <h2 className="apply-title">
-            Apply for Early Access
+            Request Early Access
           </h2>
           <p className="apply-subtitle">
-            We're opening CodeHire to 50 YC-backed startups. Tell us about your team and we'll be in touch within 48 hours.
+            We're opening CodeHire to 50 high-signal engineering teams. Tell us about your hiring workflow and we'll be in touch within 48 hours.
           </p>
         </div>
 
@@ -101,7 +101,7 @@ export default function Apply() {
               {loading ? "Submitting…" : "Submit Application →"}
             </button>
             <p className="apply-disclaimer">
-              // No spam. We'll only reach out about your application.
+              We read every application personally. No spam — we'll only contact you about your request.
             </p>
           </form>
         </div>
