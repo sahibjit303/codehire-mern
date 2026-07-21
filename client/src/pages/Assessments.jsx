@@ -43,6 +43,7 @@ export default function Assessments() {
   const [form, setForm] = useState({ title: "", description: "", language: "javascript", difficulty: "medium", timeLimit: 45 });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [tab, setTab] = useState("all"); // "all" | "templates"
 
   useEffect(() => {
     api.get("/assessments")
@@ -79,6 +80,45 @@ export default function Assessments() {
     }
   };
 
+  const toggleTemplate = async (assessment) => {
+    try {
+      const res = await api.put(`/assessments/${assessment._id}`, {
+        isTemplate: !assessment.isTemplate,
+      });
+      setAssessments((prev) =>
+        prev.map((a) => (a._id === assessment._id ? res.data.assessment : a))
+      );
+      showToast(
+        res.data.assessment.isTemplate
+          ? `"${assessment.title}" saved as template`
+          : `"${assessment.title}" removed from templates`,
+        "success"
+      );
+    } catch (err) {
+      showToast("Failed to update", "error");
+    }
+  };
+
+  const cloneFromTemplate = async (template) => {
+    try {
+      const res = await api.post("/assessments", {
+        title: `${template.title} (Copy)`,
+        description: template.description,
+        language: template.language,
+        difficulty: template.difficulty,
+        timeLimit: template.timeLimit,
+        problems: template.problems,
+      });
+      navigate(`/dashboard/assessments/${res.data.assessment._id}`);
+    } catch (err) {
+      showToast("Failed to create from template", "error");
+    }
+  };
+
+  const filtered = tab === "templates"
+    ? assessments.filter((a) => a.isTemplate)
+    : assessments;
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -114,22 +154,52 @@ export default function Assessments() {
           </div>
         </div>
 
-        {assessments.length === 0 ? (
+        {/* Tab Toggle */}
+        <div className="assess-tabs">
+          <button
+            className={`assess-tab ${tab === "all" ? "active" : ""}`}
+            onClick={() => setTab("all")}
+          >
+            All ({assessments.length})
+          </button>
+          <button
+            className={`assess-tab ${tab === "templates" ? "active" : ""}`}
+            onClick={() => setTab("templates")}
+          >
+            📋 Templates ({assessments.filter((a) => a.isTemplate).length})
+          </button>
+        </div>
+
+        {filtered.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">📋</div>
-            <h3>No assessments yet</h3>
-            <p>Create your first coding challenge to send to candidates</p>
+            <div className="empty-icon">{tab === "templates" ? "📋" : "📝"}</div>
+            <h3>{tab === "templates" ? "No templates yet" : "No assessments yet"}</h3>
+            <p>
+              {tab === "templates"
+                ? "Save an existing assessment as a template to reuse it across roles and candidates."
+                : "Create your first coding challenge to evaluate candidates with real engineering problems."}
+            </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }}>
-              <Link to="/ai-builder" className="btn btn-ai-gen">✨ Generate with AI</Link>
-              <button className="btn btn-outline" onClick={() => setShowCreate(true)}>+ Manual Create</button>
+              {tab === "all" && (
+                <>
+                  <Link to="/ai-builder" className="btn btn-ai-gen">✨ Generate with AI</Link>
+                  <button className="btn btn-outline" onClick={() => setShowCreate(true)}>+ Manual Create</button>
+                </>
+              )}
+              {tab === "templates" && (
+                <button className="btn btn-outline" onClick={() => setTab("all")}>View All Assessments</button>
+              )}
             </div>
           </div>
         ) : (
           <div className="assess-grid">
-            {assessments.map((a) => (
+            {filtered.map((a) => (
               <div key={a._id} className="assess-list-card">
                 <div className="assess-list-header">
-                  <h3 className="assess-list-title">{a.title}</h3>
+                  <h3 className="assess-list-title">
+                    {a.isTemplate && <span className="template-badge" title="Template">📋</span>}
+                    {a.title}
+                  </h3>
                   <span className="assess-diff-pill" style={{ background: diffColors[a.difficulty]?.bg, color: diffColors[a.difficulty]?.color }}>
                     {a.difficulty}
                   </span>
@@ -144,6 +214,22 @@ export default function Assessments() {
                 </div>
                 <div className="assess-list-actions">
                   <Link to={`/dashboard/assessments/${a._id}`} className="btn btn-outline">Edit / View</Link>
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => toggleTemplate(a)}
+                    title={a.isTemplate ? "Remove from templates" : "Save as template"}
+                  >
+                    {a.isTemplate ? "★ Untemplate" : "☆ Save as Template"}
+                  </button>
+                  {a.isTemplate && (
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => cloneFromTemplate(a)}
+                      title="Create a new assessment from this template"
+                    >
+                      ⧉ Use Template
+                    </button>
+                  )}
                   <button
                     className="btn btn-outline"
                     style={{ color: "var(--danger)", borderColor: "var(--danger)" }}

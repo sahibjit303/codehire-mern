@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import usePageTitle from "../hooks/usePageTitle.js";
+import { useTheme } from "../context/ThemeContext.jsx";
 import api from "../api/axios.js";
 
 export default function AssessmentBuilder() {
   usePageTitle("Assessment Builder");
+  const { theme } = useTheme();
   const { id } = useParams();
   const navigate = useNavigate();
   const [assessment, setAssessment] = useState(null);
@@ -217,7 +219,7 @@ export default function AssessmentBuilder() {
                 <Editor
                   height="180px"
                   language={assessment.language}
-                  theme="vs-dark"
+                  theme={theme === "dark" ? "vs-dark" : "light"}
                   value={problem.starterCode}
                   onChange={(val) => updateProblem(pIdx, "starterCode", val || "")}
                   options={{ fontSize: 13, minimap: { enabled: false }, scrollBeyondLastLine: false, lineNumbers: "on", padding: { top: 8 } }}

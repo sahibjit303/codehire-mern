@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import usePageTitle from "../hooks/usePageTitle.js";
+import { useTheme } from "../context/ThemeContext.jsx";
 import api from "../api/axios.js";
 
 function RadarChart({ scores }) {
@@ -50,6 +51,7 @@ function RadarChart({ scores }) {
 
 export default function SubmissionReview() {
   usePageTitle("Submission Review");
+  const { theme } = useTheme();
   const { id } = useParams();
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -149,7 +151,7 @@ export default function SubmissionReview() {
                 <Editor
                   height="400px"
                   language={assessment?.language || "javascript"}
-                  theme="vs-dark"
+                  theme={theme === "dark" ? "vs-dark" : "light"}
                   value={submission.code || "// No code submitted"}
                   options={{ readOnly: true, fontSize: 13, minimap: { enabled: false }, scrollBeyondLastLine: false, lineNumbers: "on", padding: { top: 12 } }}
                 />

@@ -2,12 +2,14 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import usePageTitle from "../hooks/usePageTitle.js";
+import { useTheme } from "../context/ThemeContext.jsx";
 import axios from "axios";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function CandidateAssessment() {
   usePageTitle("Assessment");
+  const { theme } = useTheme();
   const { token } = useParams();
 
   const [phase, setPhase] = useState("loading"); // loading | welcome | coding | submitted | error
@@ -403,7 +405,7 @@ export default function CandidateAssessment() {
           <Editor
             height="calc(100vh - 120px)"
             language={assessment?.language || "javascript"}
-            theme="vs-dark"
+            theme={theme === "dark" ? "vs-dark" : "light"}
             value={code}
             onChange={(val) => setCode(val || "")}
             options={{

@@ -6,7 +6,6 @@ import Notification from "../models/Notification.js";
 import AutomationRule from "../models/AutomationRule.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { evaluateCode } from "../utils/gemini.js";
-import { sendEmail, interviewScheduledEmail } from "../utils/email.js";
 
 const router = express.Router();
 
