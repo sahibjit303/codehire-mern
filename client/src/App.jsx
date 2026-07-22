@@ -17,6 +17,8 @@ const Settings = lazy(() => import("./pages/Settings.jsx"));
 const Analytics = lazy(() => import("./pages/Analytics.jsx"));
 const Demo = lazy(() => import("./pages/Demo.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword.jsx"));
 const Assessments = lazy(() => import("./pages/Assessments.jsx"));
 const AssessmentBuilder = lazy(() => import("./pages/AssessmentBuilder.jsx"));
 const SubmissionReview = lazy(() => import("./pages/SubmissionReview.jsx"));
@@ -54,6 +56,8 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/apply" element={<Apply />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/demo" element={<Demo />} />
 
             {/* Public assessment route — no auth, no nav */}

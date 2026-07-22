@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useToast } from "../context/ToastContext.jsx";
 import usePageTitle from "../hooks/usePageTitle.js";
+import api from "../api/axios.js";
 
-export default function Login() {
-  usePageTitle("Log In");
-  const { login } = useAuth();
-  const { showToast } = useToast();
+export default function ResetPassword() {
+  usePageTitle("Reset Password");
+  const { token } = useParams();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
+  const { showToast } = useToast();
+  const [form, setForm] = useState({ password: "", confirmPassword: "" });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showPw, setShowPw] = useState(false);
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -19,13 +19,24 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (form.password !== form.confirmPassword) {
+      return setError("Passwords do not match.");
+    }
+    if (form.password.length < 8) {
+      return setError("Password must be at least 8 characters.");
+    }
+
     setLoading(true);
     try {
-      await login(form.email, form.password);
-      showToast("Welcome back! 👋", "success");
-      navigate("/dashboard");
+      const res = await api.post("/auth/reset-password", {
+        token,
+        password: form.password,
+      });
+      showToast(res.data.message, "success");
+      navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password");
+      setError(err.response?.data?.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
@@ -38,9 +49,9 @@ export default function Login() {
           <div className="brand-mark" style={{ marginBottom: 0 }}>HC</div>
           <span>CodeHire</span>
         </div>
-        <div className="eyebrow" style={{ marginTop: 24 }}>Welcome back</div>
-        <h2>Sign in to CodeHire</h2>
-        <p className="sub">Access your hiring dashboard and candidate pipeline</p>
+        <div className="eyebrow" style={{ marginTop: 24 }}>Almost there</div>
+        <h2>Set New Password</h2>
+        <p className="sub">Enter your new password below.</p>
 
         {error && (
           <div className="error-box error-box-icon">
@@ -50,45 +61,37 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="field">
-            <label>Email address</label>
-            <input
-              name="email" type="email" value={form.email}
-              onChange={handleChange} placeholder="you@startup.com"
-              autoFocus required
-            />
-          </div>
-          <div className="field">
-            <label>Password</label>
+            <label>New password</label>
             <div className="input-pw-wrap">
               <input
                 name="password" type={showPw ? "text" : "password"}
                 value={form.password} onChange={handleChange}
-                placeholder="••••••••" required
+                placeholder="Min. 8 characters" required
+                autoFocus
               />
               <button type="button" className="pw-toggle" onClick={() => setShowPw((v) => !v)} tabIndex={-1}>
                 {showPw ? "🙈" : "👁"}
               </button>
             </div>
           </div>
-          <div style={{ textAlign: "right", marginTop: 4, marginBottom: 4 }}>
-            <Link to="/forgot-password" style={{ fontSize: 13, color: "var(--muted)" }}>Forgot password?</Link>
+          <div className="field">
+            <label>Confirm password</label>
+            <input
+              name="confirmPassword" type="password"
+              value={form.confirmPassword} onChange={handleChange}
+              placeholder="Repeat new password" required
+            />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading} style={{ marginTop: 4 }}>
-            {loading ? <><span className="btn-spinner" /> Logging in…</> : "Log In →"}
+            {loading ? <><span className="btn-spinner" /> Resetting…</> : "Reset Password →"}
           </button>
         </form>
 
         <div className="auth-divider"><span>or</span></div>
 
         <div className="auth-foot">
-          Don't have an account? <Link to="/register">Create one →</Link>
+          <Link to="/login">← Back to Login</Link>
         </div>
-        <div className="auth-foot" style={{ marginTop: 8 }}>
-          <Link to="/apply" style={{ fontSize: 13, color: "var(--muted)" }}>Need access? Apply for early access →</Link>
-        </div>
-
-
-
       </div>
     </div>
   );

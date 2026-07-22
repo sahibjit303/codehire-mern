@@ -237,6 +237,7 @@ export default function Dashboard() {
   const [scoreMin, setScoreMin] = useState("");
   const [scoreMax, setScoreMax] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [importModal, setImportModal] = useState(false);
   const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
@@ -376,6 +377,9 @@ export default function Dashboard() {
             <Link to="/dashboard/analytics" className="btn btn-outline" title="Analytics">
               📊 Analytics
             </Link>
+            <button className="btn btn-outline" onClick={() => setImportModal(true)} title="Import CSV">
+              ↑ Import CSV
+            </button>
             <button className="btn btn-outline" onClick={() => exportCSV(candidates)} title="Export CSV">
               ↓ Export CSV
             </button>
@@ -690,6 +694,154 @@ export default function Dashboard() {
           onCancel={() => setBulkStageModal(false)}
         />
       )}
+
+      {importModal && (
+        <ImportCSVModal
+          onClose={() => setImportModal(false)}
+          onImported={(newCandidates) => {
+            setCandidates((prev) => [...newCandidates, ...prev]);
+            setImportModal(false);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ── CSV Import Modal ───────────────────────────── */
+function ImportCSVModal({ onClose, onImported }) {
+  const { showToast } = useToast();
+  const [file, setFile] = useState(null);
+  const [parsed, setParsed] = useState([]);
+  const [importing, setImporting] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const parseCSV = (text) => {
+    const lines = text.split(/\r?\n/).filter((l) => l.trim());
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+    return lines.slice(1).map((line) => {
+      const values = [];
+      let current = "";
+      let inQuotes = false;
+      for (const ch of line) {
+        if (ch === '"') { inQuotes = !inQuotes; continue; }
+        if (ch === "," && !inQuotes) { values.push(current.trim()); current = ""; continue; }
+        current += ch;
+      }
+      values.push(current.trim());
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = values[i] || ""; });
+      return obj;
+    });
+  };
+
+  const handleFile = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    setFile(f);
+    setResult(null);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const rows = parseCSV(ev.target.result);
+      setParsed(rows);
+    };
+    reader.readAsText(f);
+  };
+
+  const handleImport = async () => {
+    setImporting(true);
+    try {
+      const res = await api.post("/candidates/import", { candidates: parsed });
+      setResult(res.data);
+      showToast(res.data.message, "success");
+      // Re-fetch candidates to get the full objects with _id
+      const fresh = await api.get("/candidates");
+      onImported(fresh.data.candidates);
+    } catch (err) {
+      showToast(err.response?.data?.message || "Import failed", "error");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const previewHeaders = parsed.length > 0 ? Object.keys(parsed[0]) : [];
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" style={{ maxWidth: 640 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3 className="modal-title">Import Candidates from CSV</h3>
+          <button onClick={onClose} className="icon-close">✕</button>
+        </div>
+
+        {result ? (
+          <div>
+            <div className="success-box">
+              ✅ {result.message}
+            </div>
+            {result.errors?.length > 0 && (
+              <div className="error-box" style={{ marginTop: 12 }}>
+                {result.errors.slice(0, 5).map((e, i) => (
+                  <div key={i}>Row {e.row}: {e.reason}</div>
+                ))}
+                {result.errors.length > 5 && <div>…and {result.errors.length - 5} more</div>}
+              </div>
+            )}
+            <div className="modal-actions">
+              <button className="btn btn-primary" onClick={onClose}>Done</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="field">
+              <label>CSV File</label>
+              <input type="file" accept=".csv" onChange={handleFile} />
+              <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>
+                Expected columns: Name, Role, Email, Stack, Score, Stage, Tags
+              </p>
+            </div>
+
+            {parsed.length > 0 && (
+              <>
+                <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 8 }}>
+                  Preview: <strong>{parsed.length}</strong> rows detected. Columns: {previewHeaders.join(", ")}
+                </p>
+                <div style={{ maxHeight: 200, overflow: "auto", border: "1px solid var(--line)", borderRadius: 8, marginBottom: 16 }}>
+                  <table style={{ fontSize: 12 }}>
+                    <thead>
+                      <tr>
+                        {previewHeaders.map((h) => <th key={h} style={{ padding: "6px 10px" }}>{h}</th>)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parsed.slice(0, 5).map((row, i) => (
+                        <tr key={i}>
+                          {previewHeaders.map((h) => <td key={h} style={{ padding: "4px 10px" }}>{row[h]}</td>)}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {parsed.length > 5 && (
+                    <p style={{ textAlign: "center", fontSize: 12, color: "var(--muted)", padding: 8 }}>…and {parsed.length - 5} more rows</p>
+                  )}
+                </div>
+              </>
+            )}
+
+            <div className="modal-actions">
+              <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
+              <button
+                className="btn btn-primary"
+                onClick={handleImport}
+                disabled={parsed.length === 0 || importing}
+              >
+                {importing ? "Importing…" : `Import ${parsed.length} Candidates`}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

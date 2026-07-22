@@ -1,8 +1,10 @@
 import express from "express";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { body, validationResult } from "express-validator";
 import User from "../models/User.js";
 import { protect } from "../middleware/authMiddleware.js";
+import { sendEmail, passwordResetEmail } from "../utils/email.js";
 
 const router = express.Router();
 
@@ -134,6 +136,78 @@ router.put(
       user.password = req.body.newPassword;
       await user.save();
       res.json({ message: "Password updated successfully" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
+
+// POST /api/auth/forgot-password — send reset link via email
+router.post(
+  "/forgot-password",
+  [body("email").isEmail().normalizeEmail().withMessage("A valid email is required")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array()[0].msg });
+    }
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      // Always return success to prevent email enumeration
+      if (!user) {
+        return res.json({ message: "If that email exists, a reset link has been sent." });
+      }
+
+      // Generate a secure random token
+      const token = crypto.randomBytes(32).toString("hex");
+      user.resetToken = token;
+      user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      await user.save();
+
+      const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+      const resetUrl = `${clientUrl}/reset-password/${token}`;
+
+      await sendEmail(passwordResetEmail({ email: user.email, resetUrl }));
+
+      res.json({ message: "If that email exists, a reset link has been sent." });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
+
+// POST /api/auth/reset-password — verify token and set new password
+router.post(
+  "/reset-password",
+  [
+    body("token").notEmpty().withMessage("Reset token is required"),
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("Password must be at least 8 characters"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array()[0].msg });
+    }
+    try {
+      const { token, password } = req.body;
+
+      const user = await User.findOne({
+        resetToken: token,
+        resetTokenExpiry: { $gt: new Date() },
+      });
+
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired reset link. Please request a new one." });
+      }
+
+      user.password = password;
+      user.resetToken = null;
+      user.resetTokenExpiry = null;
+      await user.save();
+
+      res.json({ message: "Password reset successfully. You can now log in." });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }

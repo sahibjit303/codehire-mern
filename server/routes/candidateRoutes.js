@@ -150,6 +150,69 @@ router.post(
   }
 );
 
+// POST /api/candidates/import — bulk import from CSV (JSON array)
+router.post("/import", async (req, res) => {
+  try {
+    const { candidates: rows } = req.body;
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(400).json({ message: "No candidate data provided" });
+    }
+    if (rows.length > 500) {
+      return res.status(400).json({ message: "Maximum 500 candidates per import" });
+    }
+
+    const results = { created: 0, skipped: 0, errors: [] };
+    const validStages = ["screen", "assess", "interview", "offer", "hired", "rejected"];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const name = (row.name || row.Name || "").trim();
+      const role = (row.role || row.Role || "").trim();
+      const email = (row.email || row.Email || "").trim();
+      const stackRaw = row.stack || row.Stack || row.tech || row.Tech || "";
+      const stack = typeof stackRaw === "string"
+        ? stackRaw.split(/[;,]/).map((s) => s.trim()).filter(Boolean)
+        : Array.isArray(stackRaw) ? stackRaw : [];
+      const tagsRaw = row.tags || row.Tags || "";
+      const tags = typeof tagsRaw === "string"
+        ? tagsRaw.split(/[;,]/).map((t) => t.trim()).filter(Boolean)
+        : Array.isArray(tagsRaw) ? tagsRaw : [];
+      const score = parseInt(row.score || row.Score, 10);
+      const stage = (row.stage || row.Stage || "screen").toLowerCase().trim();
+
+      if (!name || !role) {
+        results.errors.push({ row: i + 1, reason: "Missing name or role" });
+        results.skipped++;
+        continue;
+      }
+
+      try {
+        await Candidate.create({
+          name,
+          role,
+          email: email || undefined,
+          stack,
+          tags,
+          score: isNaN(score) ? 0 : Math.min(100, Math.max(0, score)),
+          stage: validStages.includes(stage) ? stage : "screen",
+          owner: req.user._id,
+        });
+        results.created++;
+      } catch (err) {
+        results.errors.push({ row: i + 1, reason: err.message });
+        results.skipped++;
+      }
+    }
+
+    res.json({
+      message: `Imported ${results.created} candidates (${results.skipped} skipped)`,
+      ...results,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // PUT /api/candidates/:id — edit candidate
 router.put("/:id", async (req, res) => {
   try {

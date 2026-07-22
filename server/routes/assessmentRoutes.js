@@ -151,4 +151,81 @@ router.get("/:id/submissions", async (req, res) => {
   }
 });
 
+// POST /api/assessments/:id/send-bulk — send to multiple candidates at once
+router.post("/:id/send-bulk", async (req, res) => {
+  try {
+    const { candidateIds } = req.body;
+    if (!Array.isArray(candidateIds) || candidateIds.length === 0) {
+      return res.status(400).json({ message: "No candidates selected" });
+    }
+
+    const assessment = await Assessment.findOne({ _id: req.params.id, owner: req.user._id });
+    if (!assessment) return res.status(404).json({ message: "Assessment not found" });
+
+    const results = { sent: 0, existing: 0, failed: 0, links: [] };
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
+    for (const candidateId of candidateIds) {
+      try {
+        const candidate = await Candidate.findOne({ _id: candidateId, owner: req.user._id });
+        if (!candidate) { results.failed++; continue; }
+
+        // Check for existing pending submission
+        const existingSub = await Submission.findOne({
+          assessment: assessment._id,
+          candidate: candidate._id,
+          status: { $in: ["pending", "in_progress"] },
+        });
+
+        if (existingSub) {
+          results.existing++;
+          results.links.push({
+            candidateId: candidate._id,
+            candidateName: candidate.name,
+            link: `${clientUrl}/assess/${existingSub.token}`,
+            existing: true,
+          });
+          continue;
+        }
+
+        const token = uuidv4();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        await Submission.create({
+          assessment: assessment._id,
+          candidate: candidate._id,
+          owner: req.user._id,
+          token,
+          expiresAt,
+        });
+
+        results.sent++;
+        results.links.push({
+          candidateId: candidate._id,
+          candidateName: candidate.name,
+          link: `${clientUrl}/assess/${token}`,
+          existing: false,
+        });
+
+        // Notification per candidate
+        Notification.create({
+          user: req.user._id,
+          type: "new_candidate",
+          message: `Assessment "${assessment.title}" sent to ${candidate.name}`,
+          meta: { candidateId: candidate._id, candidateName: candidate.name },
+        }).catch(() => {});
+      } catch {
+        results.failed++;
+      }
+    }
+
+    res.json({
+      message: `Sent to ${results.sent} candidates (${results.existing} already had links, ${results.failed} failed)`,
+      ...results,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;

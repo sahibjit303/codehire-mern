@@ -22,6 +22,7 @@ export default function AssessmentBuilder() {
   const [showSend, setShowSend] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState("");
   const [sendResult, setSendResult] = useState(null);
+  const [showBulkSend, setShowBulkSend] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -165,6 +166,7 @@ export default function AssessmentBuilder() {
           </div>
           <div className="dash-header-actions">
             <button className="btn btn-outline" onClick={() => setShowSend(true)}>📤 Send to Candidate</button>
+            <button className="btn btn-outline" onClick={() => setShowBulkSend(true)}>📤 Bulk Send</button>
             <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
               {saving ? "Saving…" : "Save Changes"}
             </button>
@@ -316,6 +318,126 @@ export default function AssessmentBuilder() {
               )}
             </div>
           </div>
+        )}
+        {showBulkSend && (
+          <BulkSendModal
+            assessmentId={id}
+            candidates={candidates}
+            onClose={() => setShowBulkSend(false)}
+            onSuccess={() => setSuccess("Bulk send completed!")}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Bulk Send Modal ──────────────────────────────── */
+function BulkSendModal({ assessmentId, candidates, onClose, onSuccess }) {
+  const [selected, setSelected] = useState(new Set());
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState(null);
+  const [search, setSearch] = useState("");
+
+  const filtered = candidates.filter(
+    (c) => c.name.toLowerCase().includes(search.toLowerCase()) || c.role?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const toggle = (id) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (filtered.every((c) => selected.has(c._id))) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((c) => c._id)));
+    }
+  };
+
+  const handleBulkSend = async () => {
+    setSending(true);
+    try {
+      const res = await api.post(`/assessments/${assessmentId}/send-bulk`, {
+        candidateIds: [...selected],
+      });
+      setResult(res.data);
+      onSuccess();
+    } catch (err) {
+      setResult({ message: err.response?.data?.message || "Bulk send failed" });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const copyAllLinks = () => {
+    if (!result?.links) return;
+    const text = result.links.map((l) => `${l.candidateName}: ${l.link}`).join("\n");
+    navigator.clipboard.writeText(text);
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" style={{ maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3 className="modal-title">Bulk Send Assessment</h3>
+          <button onClick={onClose} className="icon-close">✕</button>
+        </div>
+
+        {result ? (
+          <div>
+            <div className="success-box">{result.message}</div>
+            {result.links?.length > 0 && (
+              <>
+                <div style={{ maxHeight: 200, overflow: "auto", marginTop: 12, border: "1px solid var(--line)", borderRadius: 8 }}>
+                  {result.links.map((l, i) => (
+                    <div key={i} style={{ padding: "8px 12px", borderBottom: "1px solid var(--line)", fontSize: 13, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span>{l.candidateName} {l.existing ? "(existing)" : "✓"}</span>
+                      <button className="btn btn-outline" style={{ padding: "2px 8px", fontSize: 11 }} onClick={() => navigator.clipboard.writeText(l.link)}>Copy</button>
+                    </div>
+                  ))}
+                </div>
+                <button className="btn btn-outline" style={{ marginTop: 12, width: "100%" }} onClick={copyAllLinks}>Copy All Links</button>
+              </>
+            )}
+            <div className="modal-actions">
+              <button className="btn btn-primary" onClick={onClose}>Done</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <input
+              className="search-input"
+              type="text"
+              placeholder="Search candidates…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ marginBottom: 12 }}
+            />
+            <div style={{ maxHeight: 260, overflow: "auto", border: "1px solid var(--line)", borderRadius: 8 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: "1px solid var(--line)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                <input type="checkbox" checked={filtered.length > 0 && filtered.every((c) => selected.has(c._id))} onChange={toggleAll} />
+                Select All ({filtered.length})
+              </label>
+              {filtered.map((c) => (
+                <label key={c._id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: "1px solid var(--line)", fontSize: 13, cursor: "pointer" }}>
+                  <input type="checkbox" checked={selected.has(c._id)} onChange={() => toggle(c._id)} />
+                  {c.name} <span style={{ color: "var(--muted)" }}>— {c.role}</span>
+                </label>
+              ))}
+            </div>
+            <div className="modal-actions" style={{ marginTop: 16 }}>
+              <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleBulkSend} disabled={selected.size === 0 || sending}>
+                {sending ? "Sending…" : `Send to ${selected.size} Candidates`}
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -131,3 +131,23 @@ export function stageChangeEmail({ candidateName, candidateEmail, newStage, comp
     `,
   };
 }
+
+export function passwordResetEmail({ email, resetUrl }) {
+  return {
+    to: email,
+    subject: "Reset Your Password – CodeHire",
+    text: `You requested a password reset.\n\nClick this link to reset your password:\n${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, you can safely ignore this email.\n\n— CodeHire Team`,
+    html: `
+      <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px;">
+        <h2 style="color: #0F172A; margin-bottom: 8px;">Reset Your Password</h2>
+        <p style="color: #555;">You requested a password reset for your CodeHire account.</p>
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${resetUrl}" style="display: inline-block; background: #4F46E5; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px;">Reset Password</a>
+        </div>
+        <p style="color: #888; font-size: 13px;">This link expires in <strong>1 hour</strong>. If you didn't request this, you can safely ignore this email.</p>
+        <p style="color: #999; font-size: 13px; margin-top: 32px;">— CodeHire Team</p>
+      </div>
+    `,
+  };
+}
+
