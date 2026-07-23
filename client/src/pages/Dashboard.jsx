@@ -24,12 +24,58 @@ function scoreColor(score) {
 }
 
 /* ── Stat Card ──────────────────────────────────── */
-function StatCard({ label, value, sub, accent }) {
+function StatCard({ label, value, sub, accentClass, icon, badge, accent }) {
   return (
-    <div className="stat-card">
-      <div className="label">{label}</div>
-      <div className="value" style={accent ? { color: accent } : {}}>{value}</div>
+    <div className={`stat-card ${accentClass || ""}`}>
+      <div className="stat-card-top">
+        <div className="label">{label}</div>
+        {icon && <div className="stat-card-icon">{icon}</div>}
+      </div>
+      <div className="stat-card-body">
+        <div className="value" style={accent ? { color: accent } : {}}>{value}</div>
+        {badge && (
+          <span className={`stat-badge ${badge.type === "up" ? "stat-badge-up" : "stat-badge-neutral"}`}>
+            {badge.text}
+          </span>
+        )}
+      </div>
       {sub && <div className="stat-sub">{sub}</div>}
+    </div>
+  );
+}
+
+/* ── AI Quick Insights Banner ───────────────────── */
+function QuickInsights({ candidates }) {
+  if (!candidates || candidates.length === 0) return null;
+  const topCandidates = candidates.filter((c) => (c.score || 0) >= 80 && (c.stage === "screen" || c.stage === "assess"));
+  const pendingInterviews = candidates.filter((c) => c.interviewDate && new Date(c.interviewDate) >= new Date());
+
+  return (
+    <div className="dash-quick-banner">
+      <div className="dash-quick-items">
+        <div className="dash-quick-item">
+          <span className="dash-quick-icon">✨</span>
+          <div>
+            <strong>AI Signal Insight:</strong>{" "}
+            {topCandidates.length > 0 ? (
+              <span><strong style={{ color: "#4F46E5" }}>{topCandidates.length} high-scoring candidate{topCandidates.length > 1 ? "s" : ""}</strong> (score ≥ 80) ready for evaluation.</span>
+            ) : (
+              <span>Tracking <strong>{candidates.length} active candidate{candidates.length > 1 ? "s" : ""}</strong> in real-time pipeline.</span>
+            )}
+          </div>
+        </div>
+        {pendingInterviews.length > 0 && (
+          <div className="dash-quick-item">
+            <span className="dash-quick-icon">📅</span>
+            <div>
+              <strong>Upcoming:</strong> {pendingInterviews.length} interview{pendingInterviews.length > 1 ? "s" : ""} scheduled.
+            </div>
+          </div>
+        )}
+      </div>
+      <Link to="/ai-builder" className="dash-quick-btn">
+        ⚡ Create AI Assessment →
+      </Link>
     </div>
   );
 }
@@ -350,6 +396,14 @@ export default function Dashboard() {
     }
   };
 
+  const stageCounts = STAGES.reduce(
+    (acc, s) => {
+      acc[s] = candidates.filter((c) => c.stage === s).length;
+      return acc;
+    },
+    { all: candidates.length }
+  );
+
   const avgScore = candidates.length ? Math.round(candidates.reduce((a, c) => a + (c.score || 0), 0) / candidates.length) : 0;
   const hired = candidates.filter((c) => c.stage === "hired").length;
   const screening = candidates.filter((c) => c.stage === "screen").length;
@@ -370,7 +424,7 @@ export default function Dashboard() {
             <div className="eyebrow">Dashboard</div>
             <h1>Welcome back, {user?.name?.split(" ")[0]} 👋</h1>
             <p className="dash-header-sub">
-              {user?.company ? `${user.company} · ` : ""}Hiring pipeline overview
+              {user?.company ? `${user.company} · ` : ""}Hiring pipeline overview & real-time analytics
             </p>
           </div>
           <div className="dash-header-actions">
@@ -389,12 +443,45 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* AI Quick Insights Banner */}
+        <QuickInsights candidates={candidates} />
+
         {/* Stats */}
         <div className="dash-stats">
-          <StatCard label="Total Candidates" value={candidates.length} sub="in pipeline" />
-          <StatCard label="Avg. Score" value={avgScore} sub="out of 100" accent={sc.color} />
-          <StatCard label="In Screening" value={screening} sub="awaiting review" />
-          <StatCard label="Hired" value={hired} sub="all time" accent="#16A34A" />
+          <StatCard
+            label="Total Candidates"
+            value={candidates.length}
+            sub="Active in pipeline"
+            icon="👥"
+            accentClass="accent-blue"
+            badge={{ type: "up", text: "+Active" }}
+          />
+          <StatCard
+            label="Avg. Score"
+            value={avgScore}
+            sub="Evaluation index"
+            icon="🎯"
+            accentClass="accent-purple"
+            accent={sc.color}
+            badge={{ type: avgScore >= 75 ? "up" : "neutral", text: `${avgScore}% Signal` }}
+          />
+          <StatCard
+            label="In Screening"
+            value={screening}
+            sub="Needs team review"
+            icon="🔍"
+            accentClass="accent-amber"
+            badge={{ type: "neutral", text: `${screening} Pending` }}
+          />
+          <StatCard
+            label="Hired"
+            value={hired}
+            sub="Offers accepted"
+            icon="🏆"
+            accentClass="accent-green"
+            accent="#16A34A"
+            badge={{ type: "up", text: "Placed" }}
+          />
         </div>
 
         {/* Funnel Chart */}
@@ -405,7 +492,7 @@ export default function Dashboard() {
           <input
             className="search-input"
             type="text"
-            placeholder="Search by name or role…"
+            placeholder="🔍 Search name, role…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -434,6 +521,7 @@ export default function Dashboard() {
             {["all", ...STAGES].map((s) => (
               <button key={s} onClick={() => setFilterStage(s)} className={`filter-pill${filterStage === s ? " active" : ""}`}>
                 {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+                <span className="filter-pill-count">{stageCounts[s] || 0}</span>
               </button>
             ))}
           </div>
