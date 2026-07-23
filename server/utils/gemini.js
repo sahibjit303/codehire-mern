@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 let genAI = null;
-const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 
 function getClient() {
   if (genAI) return genAI;
@@ -61,7 +61,7 @@ async function callGeminiWithRetry(fn, maxRetries = 3) {
 
 /**
  * Shared function to call Gemini with the correct config for the model.
- * gemini-2.5-flash is a "thinking" model — thinkingConfig must be set.
+ * gemini-3.5-flash is configured for high performance AI task execution.
  */
 async function generateContent(client, prompt, maxOutputTokens = 1024) {
   return callGeminiWithRetry(() =>
@@ -70,7 +70,6 @@ async function generateContent(client, prompt, maxOutputTokens = 1024) {
       contents: prompt,
       config: {
         maxOutputTokens,
-        // Required for gemini-2.5-flash thinking model — disable thinking for simple tasks
         thinkingConfig: { thinkingBudget: 0 },
       },
     })

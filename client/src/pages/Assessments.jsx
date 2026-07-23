@@ -44,6 +44,9 @@ export default function Assessments() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("all"); // "all" | "templates"
+  const [search, setSearch] = useState("");
+  const [diffFilter, setDiffFilter] = useState("all");
+  const [langFilter, setLangFilter] = useState("all");
 
   useEffect(() => {
     api.get("/assessments")
@@ -51,6 +54,23 @@ export default function Assessments() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  const copyInviteLink = (assessment) => {
+    const url = `${window.location.origin}/test/${assessment._id}`;
+    navigator.clipboard.writeText(url);
+    showToast(`Test invite link copied to clipboard!`, "success");
+  };
+
+  const filtered = assessments
+    .filter((a) => (tab === "templates" ? a.isTemplate : true))
+    .filter((a) => (diffFilter === "all" ? true : a.difficulty === diffFilter))
+    .filter((a) => (langFilter === "all" ? true : (a.language || "").toLowerCase() === langFilter.toLowerCase()))
+    .filter((a) =>
+      search === ""
+        ? true
+        : a.title.toLowerCase().includes(search.toLowerCase()) ||
+          (a.description || "").toLowerCase().includes(search.toLowerCase())
+    );
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -115,10 +135,6 @@ export default function Assessments() {
     }
   };
 
-  const filtered = tab === "templates"
-    ? assessments.filter((a) => a.isTemplate)
-    : assessments;
-
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -154,26 +170,62 @@ export default function Assessments() {
           </div>
         </div>
 
-        {/* Tab Toggle */}
-        <div className="assess-tabs">
-          <button
-            className={`assess-tab ${tab === "all" ? "active" : ""}`}
-            onClick={() => setTab("all")}
-          >
-            All ({assessments.length})
-          </button>
-          <button
-            className={`assess-tab ${tab === "templates" ? "active" : ""}`}
-            onClick={() => setTab("templates")}
-          >
-            📋 Templates ({assessments.filter((a) => a.isTemplate).length})
-          </button>
+        {/* Tab Toggle & Search Filters */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
+          <div className="assess-tabs" style={{ marginBottom: 0 }}>
+            <button
+              className={`assess-tab ${tab === "all" ? "active" : ""}`}
+              onClick={() => setTab("all")}
+            >
+              All ({assessments.length})
+            </button>
+            <button
+              className={`assess-tab ${tab === "templates" ? "active" : ""}`}
+              onClick={() => setTab("templates")}
+            >
+              📋 Templates ({assessments.filter((a) => a.isTemplate).length})
+            </button>
+          </div>
+
+          {/* Filter Bar */}
+          <div className="assess-filter-group">
+            <input
+              type="text"
+              className="search-input"
+              style={{ padding: "6px 14px", fontSize: 13, width: 200 }}
+              placeholder="🔍 Search assessments…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <select
+              className="filter-pill"
+              style={{ padding: "6px 12px", fontSize: 13 }}
+              value={diffFilter}
+              onChange={(e) => setDiffFilter(e.target.value)}
+            >
+              <option value="all">All Difficulties</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+            <select
+              className="filter-pill"
+              style={{ padding: "6px 12px", fontSize: 13 }}
+              value={langFilter}
+              onChange={(e) => setLangFilter(e.target.value)}
+            >
+              <option value="all">All Languages</option>
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="typescript">TypeScript</option>
+            </select>
+          </div>
         </div>
 
         {filtered.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">{tab === "templates" ? "📋" : "📝"}</div>
-            <h3>{tab === "templates" ? "No templates yet" : "No assessments yet"}</h3>
+            <h3>{search ? `No assessments matching "${search}"` : tab === "templates" ? "No templates yet" : "No assessments yet"}</h3>
             <p>
               {tab === "templates"
                 ? "Save an existing assessment as a template to reuse it across roles and candidates."
@@ -193,8 +245,12 @@ export default function Assessments() {
           </div>
         ) : (
           <div className="assess-grid">
-            {filtered.map((a) => (
-              <div key={a._id} className="assess-list-card">
+            {filtered.map((a, idx) => (
+              <div
+                key={a._id}
+                className={`assess-list-card diff-${a.difficulty || "medium"}`}
+                style={{ animationDelay: `${idx * 0.05}s` }}
+              >
                 <div className="assess-list-header">
                   <h3 className="assess-list-title">
                     {a.isTemplate && <span className="template-badge" title="Template">📋</span>}
@@ -216,26 +272,25 @@ export default function Assessments() {
                   <Link to={`/dashboard/assessments/${a._id}`} className="btn btn-outline">Edit / View</Link>
                   <button
                     className="btn btn-outline"
+                    onClick={() => copyInviteLink(a)}
+                    title="Copy candidate invite link"
+                  >
+                    🔗 Invite Link
+                  </button>
+                  <button
+                    className="btn btn-outline"
                     onClick={() => toggleTemplate(a)}
                     title={a.isTemplate ? "Remove from templates" : "Save as template"}
                   >
-                    {a.isTemplate ? "★ Untemplate" : "☆ Save as Template"}
+                    {a.isTemplate ? "★ Untemplate" : "☆ Save Template"}
                   </button>
-                  {a.isTemplate && (
-                    <button
-                      className="btn btn-outline"
-                      onClick={() => cloneFromTemplate(a)}
-                      title="Create a new assessment from this template"
-                    >
-                      ⧉ Use Template
-                    </button>
-                  )}
                   <button
                     className="btn btn-outline"
-                    style={{ color: "var(--danger)", borderColor: "var(--danger)" }}
+                    style={{ color: "var(--danger)", borderColor: "var(--danger)", flex: "0 0 auto", minWidth: 40 }}
                     onClick={() => setDeleteTarget(a)}
+                    title="Delete assessment"
                   >
-                    Delete
+                    🗑️
                   </button>
                 </div>
               </div>

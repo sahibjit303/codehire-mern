@@ -103,7 +103,7 @@ function ScoreDistribution({ candidates }) {
   );
 }
 
-/* ── Stage Breakdown (donut-style with CSS) ─── */
+/* ── Stage Breakdown (Donut SVG Chart) ─── */
 function StageBreakdown({ candidates }) {
   const total = candidates.length || 1;
   const counts = STAGES.map((s) => ({
@@ -111,32 +111,74 @@ function StageBreakdown({ candidates }) {
     count: candidates.filter((c) => c.stage === s).length,
   }));
 
+  // Calculate SVG stroke dashes for Donut chart
+  const radius = 50;
+  const circumference = 2 * Math.PI * radius;
+  let accumulatedPercent = 0;
+
+  const slices = counts.map(({ stage, count }) => {
+    const pct = count / total;
+    const strokeDasharray = `${pct * circumference} ${circumference}`;
+    const strokeDashoffset = -accumulatedPercent * circumference;
+    accumulatedPercent += pct;
+    return { stage, count, pct, strokeDasharray, strokeDashoffset };
+  });
+
   return (
     <div className="analytics-card">
-      <h3 className="analytics-card-title">Stage Breakdown</h3>
-      <div className="stage-breakdown">
-        {counts.map(({ stage, count }) => (
-          <div key={stage} className="stage-breakdown-row">
-            <span
-              className="stage-breakdown-dot"
-              style={{ background: STAGE_COLORS_HEX[stage] }}
-            />
-            <span className="stage-breakdown-label">{STAGE_LABELS[stage]}</span>
-            <span className="stage-breakdown-bar-track">
-              <span
-                className="stage-breakdown-bar-fill"
-                style={{
-                  width: `${(count / total) * 100}%`,
-                  background: STAGE_COLORS_HEX[stage],
-                }}
-              />
-            </span>
-            <span className="stage-breakdown-count">{count}</span>
-            <span className="stage-breakdown-pct">
-              {Math.round((count / total) * 100)}%
-            </span>
+      <h3 className="analytics-card-title">Stage Distribution</h3>
+      <div className="donut-chart-container">
+        <div className="donut-svg-wrap">
+          <svg viewBox="0 0 120 120" width="140" height="140">
+            <circle cx="60" cy="60" r={radius} fill="none" stroke="var(--line)" strokeWidth="14" />
+            {slices.map(({ stage, count, strokeDasharray, strokeDashoffset }) => (
+              count > 0 && (
+                <circle
+                  key={stage}
+                  cx="60"
+                  cy="60"
+                  r={radius}
+                  fill="none"
+                  stroke={STAGE_COLORS_HEX[stage]}
+                  strokeWidth="14"
+                  strokeDasharray={strokeDasharray}
+                  strokeDashoffset={strokeDashoffset}
+                  transform="rotate(-90 60 60)"
+                  style={{ transition: "stroke-dasharray 0.5s ease" }}
+                />
+              )
+            ))}
+          </svg>
+          <div className="donut-center-label">
+            <div className="donut-center-val">{candidates.length}</div>
+            <div className="donut-center-sub">TOTAL</div>
           </div>
-        ))}
+        </div>
+
+        <div className="stage-breakdown" style={{ flex: 1, minWidth: 200 }}>
+          {counts.map(({ stage, count }) => (
+            <div key={stage} className="stage-breakdown-row">
+              <span
+                className="stage-breakdown-dot"
+                style={{ background: STAGE_COLORS_HEX[stage] }}
+              />
+              <span className="stage-breakdown-label">{STAGE_LABELS[stage]}</span>
+              <span className="stage-breakdown-bar-track">
+                <span
+                  className="stage-breakdown-bar-fill"
+                  style={{
+                    width: `${(count / total) * 100}%`,
+                    background: STAGE_COLORS_HEX[stage],
+                  }}
+                />
+              </span>
+              <span className="stage-breakdown-count">{count}</span>
+              <span className="stage-breakdown-pct">
+                {Math.round((count / total) * 100)}%
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -198,6 +240,7 @@ export default function Analytics() {
   usePageTitle("Analytics");
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState("all");
 
   useEffect(() => {
     api.get("/candidates")
@@ -231,7 +274,18 @@ export default function Analytics() {
             <Link to="/dashboard" className="profile-back">← Back to Dashboard</Link>
             <div className="eyebrow" style={{ marginTop: 16 }}>Analytics</div>
             <h1>Pipeline Analytics</h1>
-            <p className="analytics-sub">Data-driven insights into your hiring pipeline</p>
+            <p className="analytics-sub">Data-driven insights into your hiring pipeline & assessment metrics</p>
+          </div>
+          <div className="analytics-time-pills">
+            {["all", "30d", "7d"].map((range) => (
+              <button
+                key={range}
+                className={`analytics-time-pill ${timeRange === range ? "active" : ""}`}
+                onClick={() => setTimeRange(range)}
+              >
+                {range === "all" ? "All Time" : range === "30d" ? "Last 30 Days" : "Last 7 Days"}
+              </button>
+            ))}
           </div>
         </div>
 

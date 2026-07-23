@@ -150,32 +150,49 @@ export default function Compare() {
           <div className="compare-results">
             {/* Table */}
             <div className="profile-card" style={{ marginBottom: 20, overflowX: "auto" }}>
-              <h3 className="profile-card-title">Comparison Table</h3>
-              <table className="compare-table">
-                <thead>
-                  <tr>
-                    <th>Attribute</th>
-                    {compareData.candidates.map((c) => <th key={c._id}>{c.name}</th>)}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td>Role</td>{compareData.candidates.map((c) => <td key={c._id}>{c.role}</td>)}</tr>
-                  <tr>
-                    <td>Score</td>
-                    {compareData.candidates.map((c) => (
-                      <td key={c._id}><span style={{ fontWeight: 700, color: scoreColor(c.score) }}>{c.score}/100</span></td>
-                    ))}
-                  </tr>
-                  <tr>
-                    <td>Stage</td>
-                    {compareData.candidates.map((c) => (
-                      <td key={c._id}><span className={`pill pill-${c.stage}`}>{c.stage}</span></td>
-                    ))}
-                  </tr>
-                  <tr><td>Stack</td>{compareData.candidates.map((c) => <td key={c._id}>{(c.stack || []).join(", ") || "—"}</td>)}</tr>
-                  <tr><td>Assessments</td>{compareData.candidates.map((c) => <td key={c._id}>{c.submissions?.length || 0} completed</td>)}</tr>
-                </tbody>
-              </table>
+              <h3 className="profile-card-title">Side-by-Side Comparison</h3>
+              {(() => {
+                const maxScore = Math.max(...compareData.candidates.map((c) => c.score ?? 0));
+                return (
+                  <table className="compare-table">
+                    <thead>
+                      <tr>
+                        <th>Candidate</th>
+                        {compareData.candidates.map((c) => (
+                          <th key={c._id}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <span>{c.name}</span>
+                              {c.score === maxScore && maxScore > 0 && (
+                                <span className="compare-winner-badge">🏆 Top Match</span>
+                              )}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Role</td>{compareData.candidates.map((c) => <td key={c._id}>{c.role}</td>)}</tr>
+                      <tr>
+                        <td>Overall Score</td>
+                        {compareData.candidates.map((c) => (
+                          <td key={c._id}>
+                            <span style={{ fontWeight: 700, color: scoreColor(c.score), fontSize: 16 }}>{c.score}/100</span>
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td>Stage</td>
+                        {compareData.candidates.map((c) => (
+                          <td key={c._id}><span className={`pill pill-${c.stage}`}>{c.stage}</span></td>
+                        ))}
+                      </tr>
+                      <tr><td>Stack</td>{compareData.candidates.map((c) => <td key={c._id}>{(c.stack || []).join(", ") || "—"}</td>)}</tr>
+                      <tr><td>Tags</td>{compareData.candidates.map((c) => <td key={c._id}>{(c.tags || []).join(", ") || "—"}</td>)}</tr>
+                      <tr><td>Assessments</td>{compareData.candidates.map((c) => <td key={c._id}>{c.submissions?.length || 0} completed</td>)}</tr>
+                    </tbody>
+                  </table>
+                );
+              })()}
             </div>
 
             {/* Assessment Scores */}
