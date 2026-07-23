@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /ai-builder
+
+Sitemap: https://codehire.cloud/sitemap.xml
