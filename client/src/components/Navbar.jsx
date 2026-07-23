@@ -52,7 +52,7 @@ export default function Navbar() {
         <div className="container">
           <div className="nav-inner">
             <Link to="/" className="brand">
-              <div className="brand-mark">HC</div>
+              <div className="brand-mark">CH</div>
               CodeHire
             </Link>
 
