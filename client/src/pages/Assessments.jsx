@@ -31,6 +31,208 @@ const diffColors = {
   hard: { bg: "#FEF2F2", color: "#DC2626" },
 };
 
+/* ── Send Invite Modal ───────────────────────────── */
+function SendInviteModal({ assessment, onClose }) {
+  const { showToast } = useToast();
+  const [candidates, setCandidates] = useState([]);
+  const [loadingCandidates, setLoadingCandidates] = useState(true);
+  const [selectedCandidate, setSelectedCandidate] = useState("");
+  const [newCandidateName, setNewCandidateName] = useState("");
+  const [newCandidateEmail, setNewCandidateEmail] = useState("");
+  const [mode, setMode] = useState("select"); // "select" | "new"
+  const [sending, setSending] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    api.get("/candidates")
+      .then((res) => {
+        const list = res.data.candidates || [];
+        setCandidates(list);
+        if (list.length > 0) {
+          setSelectedCandidate(list[0]._id);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoadingCandidates(false));
+  }, []);
+
+  const handleGenerate = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    setError("");
+    setGeneratedLink("");
+
+    try {
+      let payload = {};
+      if (mode === "select") {
+        if (!selectedCandidate) {
+          setError("Please select a candidate.");
+          setSending(false);
+          return;
+        }
+        payload = { candidateId: selectedCandidate };
+      } else {
+        if (!newCandidateName && !newCandidateEmail) {
+          setError("Please provide a name or email for the candidate.");
+          setSending(false);
+          return;
+        }
+        payload = { candidateName: newCandidateName, email: newCandidateEmail };
+      }
+
+      const res = await api.post(`/assessments/${assessment._id}/send`, payload);
+      const fullLink = res.data.link;
+      setGeneratedLink(fullLink);
+      showToast("Candidate invite link generated!", "success");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to generate invite link");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(generatedLink);
+    showToast("Invite link copied to clipboard!", "success");
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" style={{ maxWidth: 520 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3 className="modal-title">Invite Candidate to Assessment</h3>
+          <button onClick={onClose} className="icon-close">✕</button>
+        </div>
+
+        <p style={{ fontSize: 13, color: "var(--ink-soft)", marginBottom: 16 }}>
+          Assessment: <strong>{assessment.title}</strong> ({assessment.difficulty}, {assessment.timeLimit} mins)
+        </p>
+
+        {error && <div className="error-box" style={{ marginBottom: 16 }}>{error}</div>}
+
+        {generatedLink ? (
+          <div>
+            <div className="success-box" style={{ marginBottom: 16 }}>
+              ✅ Candidate Invite Link Ready!
+            </div>
+
+            <div className="field">
+              <label>Candidate Assessment URL</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  type="text"
+                  readOnly
+                  value={generatedLink}
+                  style={{ flex: 1, fontFamily: "Space Mono, monospace", fontSize: 13 }}
+                />
+                <button className="btn btn-primary" onClick={copyLink}>
+                  📋 Copy
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              <a
+                href={generatedLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline"
+                style={{ flex: 1, textAlign: "center", textDecoration: "none" }}
+              >
+                🔗 Test Open Link ↗
+              </a>
+              <button className="btn btn-outline" onClick={onClose} style={{ flex: 1 }}>
+                Done
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleGenerate}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+              <button
+                type="button"
+                className={`btn ${mode === "select" ? "btn-primary" : "btn-outline"}`}
+                style={{ flex: 1, fontSize: 13 }}
+                onClick={() => setMode("select")}
+              >
+                Select Pipeline Candidate
+              </button>
+              <button
+                type="button"
+                className={`btn ${mode === "new" ? "btn-primary" : "btn-outline"}`}
+                style={{ flex: 1, fontSize: 13 }}
+                onClick={() => setMode("new")}
+              >
+                + Quick Add Candidate
+              </button>
+            </div>
+
+            {mode === "select" ? (
+              <div className="field">
+                <label>Select Pipeline Candidate</label>
+                {loadingCandidates ? (
+                  <p style={{ fontSize: 13, color: "var(--muted)" }}>Loading candidates…</p>
+                ) : candidates.length === 0 ? (
+                  <p style={{ fontSize: 13, color: "var(--danger)" }}>
+                    No candidates in pipeline yet. Click "+ Quick Add Candidate" above.
+                  </p>
+                ) : (
+                  <select
+                    value={selectedCandidate}
+                    onChange={(e) => setSelectedCandidate(e.target.value)}
+                  >
+                    {candidates.map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.name} ({c.role || "Candidate"}) — {c.email || "No email"}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="field">
+                  <label>Candidate Full Name *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Alex Morgan"
+                    value={newCandidateName}
+                    onChange={(e) => setNewCandidateName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="field">
+                  <label>Candidate Email</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. alex@example.com"
+                    value={newCandidateEmail}
+                    onChange={(e) => setNewCandidateEmail(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="modal-actions" style={{ marginTop: 20 }}>
+              <button type="button" className="btn btn-outline" onClick={onClose}>
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={sending || (mode === "select" && candidates.length === 0)}
+              >
+                {sending ? "Generating Link…" : "Generate Invite Link"}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Assessments() {
   usePageTitle("Assessments");
   const navigate = useNavigate();
@@ -39,6 +241,7 @@ export default function Assessments() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [inviteTarget, setInviteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", language: "javascript", difficulty: "medium", timeLimit: 45 });
   const [saving, setSaving] = useState(false);
@@ -272,8 +475,8 @@ export default function Assessments() {
                   <Link to={`/dashboard/assessments/${a._id}`} className="btn btn-outline">Edit / View</Link>
                   <button
                     className="btn btn-outline"
-                    onClick={() => copyInviteLink(a)}
-                    title="Copy candidate invite link"
+                    onClick={() => setInviteTarget(a)}
+                    title="Generate candidate invite link"
                   >
                     🔗 Invite Link
                   </button>
@@ -296,6 +499,14 @@ export default function Assessments() {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Send Invite Modal */}
+        {inviteTarget && (
+          <SendInviteModal
+            assessment={inviteTarget}
+            onClose={() => setInviteTarget(null)}
+          />
         )}
 
         {/* Quick Create Modal */}

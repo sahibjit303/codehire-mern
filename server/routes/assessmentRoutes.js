@@ -88,13 +88,31 @@ router.delete("/:id", async (req, res) => {
 // POST /api/assessments/:id/send — generate unique link for a candidate
 router.post("/:id/send", async (req, res) => {
   try {
-    const { candidateId } = req.body;
-    if (!candidateId) return res.status(400).json({ message: "Candidate ID is required" });
-
+    const { candidateId, candidateName, email, role } = req.body;
     const assessment = await Assessment.findOne({ _id: req.params.id, owner: req.user._id });
     if (!assessment) return res.status(404).json({ message: "Assessment not found" });
 
-    const candidate = await Candidate.findOne({ _id: candidateId, owner: req.user._id });
+    let candidate = null;
+    if (candidateId) {
+      candidate = await Candidate.findOne({ _id: candidateId, owner: req.user._id });
+    } else if (candidateName || email) {
+      // Find or create candidate on the fly
+      if (email) {
+        candidate = await Candidate.findOne({ email, owner: req.user._id });
+      }
+      if (!candidate) {
+        candidate = await Candidate.create({
+          name: candidateName || email || "Anonymous Candidate",
+          email: email || "",
+          role: role || assessment.title || "Software Engineer",
+          owner: req.user._id,
+          stage: "assess",
+        });
+      }
+    } else {
+      return res.status(400).json({ message: "Candidate ID or candidate details required" });
+    }
+
     if (!candidate) return res.status(404).json({ message: "Candidate not found" });
 
     // Check for existing pending submission
@@ -103,9 +121,12 @@ router.post("/:id/send", async (req, res) => {
       candidate: candidate._id,
       status: { $in: ["pending", "in_progress"] },
     });
+
+    const clientUrl = process.env.CLIENT_URL || req.headers.origin || "http://localhost:5173";
+
     if (existing) {
-      const link = `${process.env.CLIENT_URL || "http://localhost:5173"}/assess/${existing.token}`;
-      return res.json({ submission: existing, link, existing: true });
+      const link = `${clientUrl}/assess/${existing.token}`;
+      return res.json({ submission: existing, link, candidate, existing: true });
     }
 
     const token = uuidv4();
@@ -119,7 +140,7 @@ router.post("/:id/send", async (req, res) => {
       expiresAt,
     });
 
-    const link = `${process.env.CLIENT_URL || "http://localhost:5173"}/assess/${token}`;
+    const link = `${clientUrl}/assess/${token}`;
 
     // Notification
     Notification.create({
@@ -129,7 +150,7 @@ router.post("/:id/send", async (req, res) => {
       meta: { candidateId: candidate._id, candidateName: candidate.name },
     }).catch(() => {});
 
-    res.status(201).json({ submission, link, existing: false });
+    res.status(201).json({ submission, link, candidate, existing: false });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
