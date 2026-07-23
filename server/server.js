@@ -7,7 +7,6 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-import applicationRoutes from "./routes/applicationRoutes.js";
 import candidateRoutes from "./routes/candidateRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
@@ -73,7 +72,6 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authLimiter, authRoutes);
 
 // Protected routes
-app.use("/api/applications", applicationRoutes);
 app.use("/api/candidates", candidateRoutes);
 app.use("/api/candidates", noteRoutes);
 app.use("/api/notifications", notificationRoutes);

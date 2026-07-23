@@ -10,7 +10,6 @@ import { ToastProvider } from "./context/ToastContext.jsx";
 /* Lazy-loaded routes for better performance */
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Register = lazy(() => import("./pages/Register.jsx"));
-const Apply = lazy(() => import("./pages/Apply.jsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
 const CandidateProfile = lazy(() => import("./pages/CandidateProfile.jsx"));
 const Settings = lazy(() => import("./pages/Settings.jsx"));
@@ -55,7 +54,6 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/apply" element={<Apply />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/demo" element={<Demo />} />

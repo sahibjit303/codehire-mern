@@ -146,9 +146,9 @@ export const HERO_CANDIDATES = [
 
 export const BETA_CARDS = [
   {
-    icon: "🔬",
-    title: "Invitation-Only Access",
-    body: "CodeHire is in private beta for a select group of engineering-led startups. We onboard in cohorts of 10 — so every team gets proper setup and support, not a self-serve signup flow.",
+    icon: "🚀",
+    title: "Instant Access",
+    body: "Sign up and start building assessments immediately. No approval process, no waitlist — your account is ready within seconds.",
   },
   {
     icon: "📊",

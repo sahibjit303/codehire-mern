@@ -1,136 +1,7 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import FadeUp from "../components/FadeUp.jsx";
 import usePageTitle from "../hooks/usePageTitle.js";
 import { TABS, WHY, STEPS, TESTIMONIALS, HERO_CANDIDATES, BETA_CARDS } from "../data/homeData.js";
-
-/* ── Tab visual components ───────────────────────── */
-
-function MiniCandRow({ name, sub, score, bg, color, pct }) {
-  return (
-    <div className="mini-cand-row">
-      <div className="mini-cand-avatar" style={{ background: bg, color }}>{name.slice(0, 2)}</div>
-      <div className="mini-cand-info">
-        <div className="mini-cand-name">{name}</div>
-        <div className="mini-cand-sub">{sub}</div>
-        <div className="mini-cand-bar">
-          <div className="mini-cand-bar-fill" style={{ width: `${pct}%` }} />
-        </div>
-      </div>
-      <div className="mini-cand-score">{score}</div>
-    </div>
-  );
-}
-
-function ScreenVisual() {
-  return (
-    <div className="tab-visual">
-      <div className="tab-visual-label">Live Candidate Ranking</div>
-      <MiniCandRow name="Arjun K." sub="Go · Kubernetes · Postgres" score={94} pct={94} bg="#E0E7FF" color="#4F46E5" />
-      <MiniCandRow name="Sofia R." sub="React · Node · TypeScript" score={88} pct={88} bg="#FEF3C7" color="#D97706" />
-      <MiniCandRow name="Marcus L." sub="Rust · Distributed Systems" score={82} pct={82} bg="#ECFDF5" color="#059669" />
-    </div>
-  );
-}
-
-function AssessVisual() {
-  return (
-    <div className="tab-visual">
-      <div className="tab-visual-label">Assessment Environment</div>
-      <div className="code-preview">
-        <div className="code-preview-bar">assessment_2847.py</div>
-        <div className="code-preview-body">
-          <div><span className="tok-keyword">def </span><span className="tok-fn">process_orders</span>(orders):</div>
-          <div className="code-indent-1">result = []</div>
-          <div className="code-indent-1"><span className="tok-keyword">for</span> o in orders:</div>
-          <div className="code-indent-2"><span className="tok-keyword">if</span> o[<span className="tok-string">'status'</span>] == <span className="tok-string">'active'</span>:</div>
-          <div className="code-indent-3">result.append(o)</div>
-          <div className="code-indent-1"><span className="tok-keyword">return</span> result</div>
-        </div>
-      </div>
-      <div className="assess-metrics">
-        {[["Paste events", "0 flagged"], ["Edit pattern", "✓ organic"]].map(([l, v]) => (
-          <div key={l} className="assess-metric-card">
-            <div className="assess-metric-label">{l}</div>
-            <div className="assess-metric-value">{v}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function InterviewVisual() {
-  return (
-    <div className="tab-visual">
-      <div className="tab-visual-label">Interview Session</div>
-      {[["System Design", "Design a rate limiter for a REST API handling 10k req/s."], ["Algorithms", "Optimize a function to find duplicates in a 1M-row dataset."]].map(([type, q]) => (
-        <div key={type} className="interview-question-card">
-          <div className="interview-question-type">{type}</div>
-          <div className="interview-question-text">{q}</div>
-        </div>
-      ))}
-      <div className="interview-score-card">
-        <span className="interview-score-label">Candidate score</span>
-        <span className="interview-score-value">91 / 100</span>
-      </div>
-    </div>
-  );
-}
-
-function WorkflowVisual() {
-  const stages = [
-    ["Screen", "248 applicants", "#E0E7FF", "#4F46E5", "✓"],
-    ["Assess", "42 candidates", "#ECFDF5", "#059669", "→"],
-    ["Interview", "8 finalists", "#FEF3C7", "#D97706", "◎"],
-  ];
-  return (
-    <div className="tab-visual">
-      <div className="tab-visual-label">Pipeline Stages</div>
-      {stages.map(([label, sub, bg, color, icon]) => (
-        <div key={label} className="workflow-stage-row">
-          <div className="workflow-stage-icon" style={{ background: bg, color }}>{icon}</div>
-          <div className="workflow-stage-label">
-            <span className="workflow-stage-name">{label}</span> — <span className="workflow-stage-sub">{sub}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function IntegrationsVisual() {
-  const tools = [
-    ["🌿", "Greenhouse", "Connected", true],
-    ["📅", "Google Cal", "Connected", true],
-    ["💬", "Slack", "Connected", true],
-    ["🔗", "Webhooks", "Configure", false],
-  ];
-  return (
-    <div className="tab-visual">
-      <div className="tab-visual-label">Connected Tools</div>
-      <div className="integrations-grid">
-        {tools.map(([icon, name, status, active]) => (
-          <div key={name} className="integration-card">
-            <div className="integration-icon">{icon}</div>
-            <div className="integration-name">{name}</div>
-            <div className={`integration-status ${active ? "active" : ""}`}>
-              {active ? "● " : "○ "}{status}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-const TAB_VISUALS = {
-  screen: ScreenVisual,
-  assess: AssessVisual,
-  interview: InterviewVisual,
-  workflow: WorkflowVisual,
-  integrations: IntegrationsVisual,
-};
 
 const BENTO_ICONS = {
   screen: "🎯",
@@ -169,9 +40,6 @@ function HeroCard() {
 /* ── Home Page ──────────────────────────────────── */
 export default function Home() {
   usePageTitle(null);
-  const [activeTab, setActiveTab] = useState("screen");
-  const Visual = TAB_VISUALS[activeTab];
-  const current = TABS.find((t) => t.key === activeTab);
 
   return (
     <>
@@ -218,7 +86,6 @@ export default function Home() {
         </div>
       </section>
 
-
       {/* ── FEATURES BENTO ── */}
       <section className="section-alt" id="features">
         <div className="container">
@@ -232,17 +99,10 @@ export default function Home() {
 
           <div className="feature-bento">
             {TABS.map((t, i) => {
-              const V = TAB_VISUALS[t.key];
               const isWide = i === 0 || i === 3;
               return (
                 <FadeUp key={t.key} delay={i * 0.06}>
-                  <div
-                    className={`feature-bento-card${activeTab === t.key ? " active" : ""}${isWide ? " feature-bento-wide" : ""}`}
-                    onClick={() => setActiveTab(t.key)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === "Enter" && setActiveTab(t.key)}
-                  >
+                  <div className={`feature-bento-card${isWide ? " feature-bento-wide" : ""}`}>
                     <div className="feature-bento-num">{t.num}</div>
                     <span className="feature-bento-icon">{BENTO_ICONS[t.key]}</span>
                     <h3>{t.heading}</h3>
@@ -252,17 +112,6 @@ export default function Home() {
               );
             })}
           </div>
-
-          {/* Feature detail for active tab — point list */}
-          {current && (
-            <FadeUp>
-              <div style={{ marginTop: 32, padding: "24px 28px", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius)" }}>
-                <ul className="point-list" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "0 24px" }}>
-                  {current.points.map((p) => <li key={p}>{p}</li>)}
-                </ul>
-              </div>
-            </FadeUp>
-          )}
         </div>
       </section>
 
