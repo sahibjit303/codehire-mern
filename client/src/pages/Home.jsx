@@ -222,7 +222,7 @@ export default function Home() {
       <div className="trust-bar">
         <div className="container">
           <p className="mono trust-text">
-            TRUSTED BY ENGINEERING TEAMS AT YC-BACKED STARTUPS · W23 · S23 · W24 · S24 · W25 · S25
+            USED BY ENGINEERING TEAMS WHO CARE ABOUT CODE QUALITY · STARTUPS · SCALE-UPS · TECH LEADS
           </p>
         </div>
       </div>

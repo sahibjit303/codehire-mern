@@ -403,6 +403,7 @@ section { padding: 96px 0; }
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: auto auto;
   gap: 16px;
+  align-items: start;
 }
 .feature-bento-card {
   background: var(--surface);
@@ -412,6 +413,8 @@ section { padding: 96px 0; }
   cursor: pointer;
   transition: all 0.25s cubic-bezier(.4,0,.2,1);
   position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  align-items: flex-start;
 }
 .feature-bento-card::before {
   content: '';
