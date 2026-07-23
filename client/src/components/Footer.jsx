@@ -37,18 +37,17 @@ export default function Footer() {
 
           <div className="footer-col">
             <h4>Use Cases</h4>
-            <Link to="/apply">Startups & Scale-ups</Link>
-            <Link to="/apply">Engineering Leads</Link>
+            <Link to="/register">Startups & Scale-ups</Link>
+            <Link to="/register">Engineering Leads</Link>
             <Link to="/demo">Anti-AI Detection</Link>
             <Link to="/demo">Skills-Based Hiring</Link>
           </div>
 
           <div className="footer-col">
             <h4>Company</h4>
-            <Link to="/apply">Request Access</Link>
+            <Link to="/register">Create Account</Link>
             <Link to="/demo">Live Demo</Link>
             <Link to="/login">Sign In</Link>
-            <Link to="/register">Create Account</Link>
           </div>
         </div>
 

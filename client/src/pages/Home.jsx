@@ -180,7 +180,7 @@ export default function Home() {
         <div className="container">
           <div className="hero-grid">
             <FadeUp>
-              <div className="eyebrow">Now in private beta — limited access</div>
+              <div className="eyebrow">Start hiring smarter — sign up free</div>
               <h1>Hire Engineers Who <span className="italic">Actually Build.</span><br />Not Just Prompt AI.</h1>
               <p className="hero-sub">
                 Technical hiring is broken. AI tools let anyone look qualified on paper.
@@ -188,13 +188,13 @@ export default function Home() {
                 architect, and deliver — with proof.
               </p>
               <div className="hero-ctas">
-                <Link to="/apply" className="btn btn-primary">
-                  Request Early Access
+                <Link to="/register" className="btn btn-primary">
+                  Get Started Free
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </Link>
                 <a href="#how" className="btn btn-outline">See how it works</a>
               </div>
-              <p className="hero-note mono">// Onboarding 50 engineering teams — spots limited</p>
+              <p className="hero-note mono">// No credit card required · Set up in minutes</p>
 
               <div className="hero-stats">
                 <div>
@@ -355,16 +355,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── BETA CTA ── */}
+      {/* ── CTA ── */}
       <section id="beta">
         <div className="container">
           <FadeUp>
             <div className="beta-box">
-              <div className="eyebrow">Private Beta</div>
+              <div className="eyebrow">Start Today</div>
               <h2>Built for teams that hire<br />on merit, not instinct.</h2>
-              <p>This is a private beta — not a self-serve SaaS product. We onboard selected engineering teams in cohorts of 10, with hands-on support at every step.</p>
+              <p>Sign up free and get your first assessment running in minutes. No credit card required — just bring your hiring pipeline.</p>
               <div className="beta-ctas">
-                <Link to="/apply" className="btn btn-primary">Request Early Access</Link>
+                <Link to="/register" className="btn btn-primary">Create Free Account</Link>
                 <a href="#how" className="btn btn-outline">See How It Works</a>
               </div>
               <div className="beta-grid">
@@ -385,17 +385,17 @@ export default function Home() {
       <section className="final-cta section-alt">
         <div className="container">
           <FadeUp>
-            <div className="eyebrow">Limited Availability</div>
+            <div className="eyebrow">Free to Start</div>
             <h2>Stop guessing.<br /><span className="final-cta-highlight">Start knowing.</span></h2>
             <p>Give your hiring team the signal it needs to make confident decisions — fast. Built for engineering-led companies who refuse to compromise on talent quality.</p>
             <div className="final-ctas">
-              <Link to="/apply" className="btn btn-primary">
-                Request Early Access
+              <Link to="/register" className="btn btn-primary">
+                Get Started Free
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
               <Link to="/login" className="btn btn-outline">Sign In</Link>
             </div>
-            <p className="mono final-cta-note">// Onboarding in cohorts · Spots are limited</p>
+            <p className="mono final-cta-note">// No credit card required · Set up in minutes</p>
           </FadeUp>
         </div>
       </section>

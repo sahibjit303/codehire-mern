@@ -83,9 +83,6 @@ export default function Login() {
         <div className="auth-foot">
           Don't have an account? <Link to="/register">Create one →</Link>
         </div>
-        <div className="auth-foot" style={{ marginTop: 8 }}>
-          <Link to="/apply" style={{ fontSize: 13, color: "var(--muted)" }}>Need access? Apply for early access →</Link>
-        </div>
 
 
 

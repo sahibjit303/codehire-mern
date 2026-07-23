@@ -61,7 +61,6 @@ export default function Navbar() {
               <a href="#how" onClick={(e) => scrollTo(e, "#how")} className="nav-link">How It Works</a>
               <a href="#why" onClick={(e) => scrollTo(e, "#why")} className="nav-link">Why Us</a>
               <Link to="/demo" className="nav-link">Demo</Link>
-              <Link to="/apply" className="nav-link">Apply</Link>
             </div>
 
             <div className="nav-actions">
@@ -93,7 +92,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link to="/login" className={`nav-link ${isActive("/login") ? "nav-link-active" : ""}`}>Log in</Link>
-                  <Link to="/apply" className="btn btn-primary btn-nav">Apply For Access</Link>
+                  <Link to="/register" className="btn btn-primary btn-nav">Sign Up</Link>
                 </>
               )}
             </div>
@@ -117,7 +116,6 @@ export default function Navbar() {
           <a href="#how" onClick={(e) => scrollTo(e, "#how")} className="mobile-link">How It Works</a>
           <a href="#why" onClick={(e) => scrollTo(e, "#why")} className="mobile-link">Why Us</a>
           <Link to="/demo" className="mobile-link">Demo</Link>
-          <Link to="/apply" className="mobile-link">Apply</Link>
           <div className="mobile-divider" />
           {user ? (
             <>
@@ -134,7 +132,7 @@ export default function Navbar() {
           ) : (
             <>
               <Link to="/login" className="mobile-link">Log in</Link>
-              <Link to="/apply" className="btn btn-primary btn-block" style={{ marginTop: 8 }}>Apply For Access</Link>
+              <Link to="/register" className="btn btn-primary btn-block" style={{ marginTop: 8 }}>Sign Up</Link>
             </>
           )}
         </div>

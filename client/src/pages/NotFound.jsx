@@ -18,7 +18,7 @@ export default function NotFound() {
         </div>
         <div className="not-found-links">
           <Link to="/login">Sign In</Link>
-          <Link to="/apply">Request Access</Link>
+          <Link to="/register">Sign Up</Link>
           <Link to="/demo">View Demo</Link>
         </div>
       </div>

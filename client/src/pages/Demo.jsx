@@ -250,9 +250,9 @@ export default function Demo() {
                     This is what every candidate assessment looks like.
                   </h3>
                   <p className="demo-cta-text">
-                    Unique problems. Real-time detection. Instant AI reports. Apply now to get CodeHire for your team.
+                    Unique problems. Real-time detection. Instant AI reports. Sign up free and get CodeHire for your team.
                   </p>
-                  <Link to="/apply" className="btn btn-primary btn-block">Apply For Early Access →</Link>
+                  <Link to="/register" className="btn btn-primary btn-block">Sign Up Free →</Link>
                   <button
                     onClick={() => { setStep(0); setTypingStarted(false); setShowReport(false); }}
                     className="btn btn-outline btn-block demo-replay-btn"
