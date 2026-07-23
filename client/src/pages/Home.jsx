@@ -218,14 +218,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TRUST BAR ── */}
-      <div className="trust-bar">
-        <div className="container">
-          <p className="mono trust-text">
-            USED BY ENGINEERING TEAMS WHO CARE ABOUT CODE QUALITY · STARTUPS · SCALE-UPS · TECH LEADS
-          </p>
-        </div>
-      </div>
 
       {/* ── FEATURES BENTO ── */}
       <section className="section-alt" id="features">
@@ -255,11 +247,6 @@ export default function Home() {
                     <span className="feature-bento-icon">{BENTO_ICONS[t.key]}</span>
                     <h3>{t.heading}</h3>
                     <p>{t.body}</p>
-                    {activeTab === t.key && (
-                      <div className="feature-bento-visual">
-                        <V />
-                      </div>
-                    )}
                   </div>
                 </FadeUp>
               );
