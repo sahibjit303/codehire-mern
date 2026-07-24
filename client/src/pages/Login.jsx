@@ -35,7 +35,7 @@ export default function Login() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="brand-mark" style={{ marginBottom: 0 }}>HC</div>
+          <div className="brand-mark" style={{ marginBottom: 0 }}>CH</div>
           <span>CodeHire</span>
         </div>
         <div className="eyebrow" style={{ marginTop: 24 }}>Welcome back</div>

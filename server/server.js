@@ -21,16 +21,22 @@ connectDB();
 
 const app = express();
 
+// Trust reverse proxy (required for Render / Vercel rate limiting)
+app.set("trust proxy", 1);
+
 // Security headers — relax crossOriginResourcePolicy for API use
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
 
-// Allowed origins: localhost dev + any deployed client URL from env
+// Allowed origins: localhost dev + codehire.cloud + Vercel + env
 const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:4173",
-  process.env.CLIENT_URL,           // e.g. https://hirecode-mern.vercel.app
+  "https://codehire.cloud",
+  "https://www.codehire.cloud",
+  "https://codehire-gamma.vercel.app",
+  process.env.CLIENT_URL,           // e.g. https://codehire.cloud
   process.env.CLIENT_URL_PREVIEW,   // optional: Vercel preview URLs
 ].filter(Boolean);
 
@@ -40,8 +46,8 @@ app.use(
       // Allow requests with no origin (Postman, curl, mobile apps)
       if (!origin) return callback(null, true);
       if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
-      // Allow any *.vercel.app subdomain (preview deployments)
-      if (/\.vercel\.app$/.test(origin)) return callback(null, true);
+      // Allow any *.vercel.app or *.codehire.cloud subdomain
+      if (/\.vercel\.app$/.test(origin) || /\.codehire\.cloud$/.test(origin)) return callback(null, true);
       callback(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
